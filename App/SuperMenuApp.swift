@@ -4,17 +4,29 @@ import SwiftUI
 @main
 struct SuperMenuApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    @StateObject private var model = SettingsModel()
 
     var body: some Scene {
-        Window("超级右键", id: "settings") {
-            SettingsRootView()
+        Window(Text(model.l10n.text("app.name")), id: "settings") {
+            SettingsRootView(model: model)
         }
         .defaultSize(width: 820, height: 580)
         .commands {
             CommandGroup(replacing: .newItem) {}
+            CommandGroup(replacing: .appInfo) {
+                AboutButton(model: model)
+            }
         }
-        MenuBarExtra("超级右键", systemImage: "contextualmenu.and.cursorarrow") {
-            MenuBarMenu()
+        Window(Text(model.l10n.text("about.title", model.l10n.text("app.name"))), id: AboutView.windowID) {
+            AboutView(model: model)
+        }
+        .windowResizability(.contentSize)
+        .defaultPosition(.center)
+        MenuBarExtra {
+            MenuBarMenu(model: model)
+        } label: {
+            Image(nsImage: MenuIcons.menuBar)
+                .accessibilityLabel(model.l10n.text("app.name"))
         }
     }
 }
@@ -39,11 +51,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 private struct MenuBarMenu: View {
+    @ObservedObject var model: SettingsModel
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        let snapshot = FinderBridge.snapshot()
         let config = ConfigStore.load(from: ConfigStore.defaultURL())
+        let l10n = L10n(language: config.language)
+        let snapshot = FinderBridge.snapshot(localization: l10n)
         let context = MenuContext(kind: .items, targetedFolder: snapshot.folder, selection: snapshot.selection)
         let nodes = MenuBuilder.build(
             context: context,
@@ -56,11 +70,14 @@ private struct MenuBarMenu: View {
         }
         MenuNodeList(nodes: nodes, context: context, config: config)
         Divider()
-        Button("打开设置…") {
+        Button {
             NSApp.activate(ignoringOtherApps: true)
             openWindow(id: "settings")
+        } label: {
+            Label(l10n.text("settings.open"), systemImage: "gearshape")
         }
-        Button("退出超级右键") {
+        AboutButton(model: model)
+        Button(l10n.text("app.quit")) {
             NSApp.terminate(nil)
         }
     }
@@ -77,14 +94,29 @@ private struct MenuNodeList: View {
             case .separator:
                 Divider()
             case .command(let command):
-                Button(node.title) {
+                Button {
                     CommandRunner.run(command, context: context, config: config, presentErrors: true)
+                } label: {
+                    nodeLabel(node)
                 }
                 .disabled(!node.isEnabled)
             case .submenu(let children):
-                Menu(node.title) {
+                Menu {
                     MenuNodeList(nodes: children, context: context, config: config)
+                } label: {
+                    nodeLabel(node)
                 }
+            }
+        }
+    }
+
+    private func nodeLabel(_ node: MenuNode) -> some View {
+        Label {
+            Text(node.title)
+        } icon: {
+            if let image = MenuIcons.image(for: node) {
+                Image(nsImage: image)
+                    .renderingMode(image.isTemplate ? .template : .original)
             }
         }
     }

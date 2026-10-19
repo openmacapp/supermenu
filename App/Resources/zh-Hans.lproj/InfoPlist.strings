@@ -1,0 +1,3 @@
+"CFBundleDisplayName" = "超级右键";
+"CFBundleName" = "超级右键";
+"NSAppleEventsUsageDescription" = "超级右键需要读取访达当前选中的文件，才能复制路径并用编辑器打开。";

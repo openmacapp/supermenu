@@ -11,12 +11,12 @@ enum SettingsPage: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var title: String {
+    func title(using l10n: L10n) -> String {
         switch self {
-        case .enable: return "启用"
-        case .menu: return "菜单"
-        case .openWith: return "打开方式"
-        case .paths: return "路径"
+        case .enable: return l10n.text("settings.enable")
+        case .menu: return l10n.text("settings.menu")
+        case .openWith: return l10n.text("settings.openWith")
+        case .paths: return l10n.text("settings.paths")
         }
     }
 
@@ -33,6 +33,7 @@ enum SettingsPage: String, CaseIterable, Identifiable {
 final class SettingsModel: ObservableObject {
     @Published var config: MenuConfig
     @Published var extensionEnabled = false
+    var l10n: L10n { L10n(language: config.language) }
     private let url: URL
 
     init() {
@@ -66,17 +67,35 @@ final class SettingsModel: ObservableObject {
 }
 
 struct SettingsRootView: View {
-    @StateObject private var model = SettingsModel()
+    @ObservedObject var model: SettingsModel
     @State private var page: SettingsPage? = .enable
 
     var body: some View {
         NavigationSplitView {
-            List(SettingsPage.allCases, selection: $page) { item in
-                Label(item.title, systemImage: item.symbol)
-                    .tag(item)
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(spacing: 10) {
+                    Image(nsImage: MenuIcons.appIcon)
+                        .resizable()
+                        .frame(width: 42, height: 42)
+                        .accessibilityHidden(true)
+                    Text(model.l10n.text("app.name"))
+                        .font(.headline)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+
+                List(SettingsPage.allCases, selection: $page) { item in
+                    Label(item.title(using: model.l10n), systemImage: item.symbol)
+                        .tag(item)
+                }
+                .listStyle(.sidebar)
+
+                AboutButton(model: model)
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
             }
-            .listStyle(.sidebar)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
+            .navigationSplitViewColumnWidth(min: 190, ideal: 220, max: 280)
         } detail: {
             switch page ?? .enable {
             case .enable:
@@ -89,7 +108,8 @@ struct SettingsRootView: View {
                 PathsPage(model: model)
             }
         }
-        .frame(minWidth: 760, minHeight: 520)
+        .frame(minWidth: 820, minHeight: 580)
+        .environment(\.locale, model.l10n.locale)
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             model.refreshExtension()
         }
@@ -102,27 +122,61 @@ private struct EnablePage: View {
     var body: some View {
         Form {
             Section {
-                LabeledContent("访达扩展") {
-                    Text(model.extensionEnabled ? "已启用" : "尚未启用")
+                HStack(spacing: 16) {
+                    Image(nsImage: MenuIcons.appIcon)
+                        .resizable()
+                        .frame(width: 64, height: 64)
+                        .accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(model.l10n.text("app.name"))
+                            .font(.title2.bold())
+                        Text(model.l10n.text("app.tagline"))
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+
+            Section {
+                Picker(model.l10n.text("language.title"), selection: language) {
+                    ForEach(AppLanguage.allCases) { option in
+                        Text(option == .system ? model.l10n.text("language.system") : option.nativeName)
+                            .tag(option)
+                    }
+                }
+            } footer: {
+                Text(model.l10n.text("language.note"))
+            }
+
+            Section {
+                LabeledContent(model.l10n.text("finder.extension")) {
+                    Text(model.extensionEnabled ? model.l10n.text("status.enabled") : model.l10n.text("status.disabled"))
                         .foregroundStyle(model.extensionEnabled ? .green : .secondary)
                 }
-                Button("打开访达扩展设置") {
+                Button(model.l10n.text("finder.settings")) {
                     FIFinderSyncController.showExtensionManagementInterface()
                 }
             } header: {
-                Text("在访达里右键")
+                Text(model.l10n.text("finder.heading"))
             } footer: {
-                Text("启用后，选中文件或在窗口空白处右键，菜单出现在「超级右键」里。这是系统给访达扩展的位置。菜单栏图标现在就能对访达里选中的文件做同样的事，系统会先询问是否允许控制访达。")
+                Text(model.l10n.text("finder.explanation"))
             }
 
-            Section("这版会做的事") {
-                Text("复制绝对路径、相对路径和终端路径。相对路径默认相对 Git 仓库根，没有仓库时相对当前访达文件夹。")
-                Text("用 Visual Studio Code、GoLand、Cursor、WorkBuddy 打开选中的文件或当前文件夹。没装的会显示为未安装。")
-                Text("新建文本、Markdown、JSON、Swift、Go 文件，发送到桌面、文稿、下载，在终端或 iTerm 中打开，以及拷贝 MD5 / SHA256。")
+            Section(model.l10n.text("features.heading")) {
+                Text(model.l10n.text("features.paths"))
+                Text(model.l10n.text("features.apps"))
+                Text(model.l10n.text("features.files"))
             }
         }
         .formStyle(.grouped)
         .padding()
+    }
+
+    private var language: Binding<AppLanguage> {
+        Binding(
+            get: { model.config.language },
+            set: { model.config.language = $0; model.save() }
+        )
     }
 }
 
@@ -131,31 +185,31 @@ private struct MenuPage: View {
 
     var body: some View {
         Form {
-            Section("复制") {
-                Toggle("复制绝对路径", isOn: model.binding(\.copyAbsolute))
-                Toggle("复制相对路径", isOn: model.binding(\.copyRelative))
-                Toggle("复制终端路径", isOn: model.binding(\.copyShell))
-                Toggle("复制文件名", isOn: model.binding(\.copyName))
-                Toggle("复制文件名（不含扩展名）", isOn: model.binding(\.copyStem))
+            Section(model.l10n.text("copy.heading")) {
+                Toggle(model.l10n.text("copy.absolute"), isOn: model.binding(\.copyAbsolute))
+                Toggle(model.l10n.text("copy.relative"), isOn: model.binding(\.copyRelative))
+                Toggle(model.l10n.text("copy.shell"), isOn: model.binding(\.copyShell))
+                Toggle(model.l10n.text("copy.name"), isOn: model.binding(\.copyName))
+                Toggle(model.l10n.text("copy.stem"), isOn: model.binding(\.copyStem))
             }
-            Section("终端") {
-                Toggle("在终端中打开", isOn: model.binding(\.terminal))
-                Toggle("在 iTerm 中打开", isOn: model.binding(\.iTerm))
+            Section(model.l10n.text("terminal.heading")) {
+                Toggle(model.l10n.text("open.terminal"), isOn: model.binding(\.terminal))
+                Toggle(model.l10n.text("open.iterm"), isOn: model.binding(\.iTerm))
             }
-            Section("新建") {
+            Section(model.l10n.text("new.heading")) {
                 ForEach(model.config.newFileTypes) { template in
-                    Toggle(template.title, isOn: templateBinding(template.id))
+                    Toggle(model.l10n.title(for: template), isOn: templateBinding(template.id))
                 }
             }
-            Section("发送到") {
+            Section(model.l10n.text("send.heading")) {
                 ForEach(model.config.sendTargets) { target in
-                    Toggle(target.title, isOn: sendBinding(target.id))
+                    Toggle(model.l10n.title(for: target), isOn: sendBinding(target.id))
                 }
             }
-            Section("其他") {
-                Toggle("拷贝 MD5 和 SHA256", isOn: model.binding(\.hashes))
-                Toggle("显示/隐藏", isOn: model.binding(\.toggleHidden))
-                Toggle("按文件名新建文件夹", isOn: model.binding(\.folderFromName))
+            Section(model.l10n.text("other.heading")) {
+                Toggle(model.l10n.text("hash.both"), isOn: model.binding(\.hashes))
+                Toggle(model.l10n.text("item.toggleHidden"), isOn: model.binding(\.toggleHidden))
+                Toggle(model.l10n.text("item.folderFromName"), isOn: model.binding(\.folderFromName))
             }
         }
         .formStyle(.grouped)
@@ -196,7 +250,7 @@ private struct OpenWithPage: View {
                     HStack {
                         Toggle(app.displayName, isOn: openBinding(app.id))
                         Spacer()
-                        Text(model.isInstalled(app) ? "已安装" : "未安装")
+                        Text(model.isInstalled(app) ? model.l10n.text("status.installed") : model.l10n.text("status.notInstalled"))
                             .foregroundStyle(.secondary)
                         if !app.isBuiltIn {
                             Button {
@@ -206,13 +260,14 @@ private struct OpenWithPage: View {
                                 Image(systemName: "minus.circle")
                             }
                             .buttonStyle(.borderless)
-                            .help("移除")
+                            .help(model.l10n.text("action.remove"))
+                            .accessibilityLabel(model.l10n.text("action.remove"))
                         }
                     }
                 }
-                Button("添加 App…") { pickingApp = true }
+                Button(model.l10n.text("app.add")) { pickingApp = true }
             } footer: {
-                Text("右键「打开方式」会按这里的顺序出现。添加的 App 会和内置的 VS Code、GoLand、Cursor、WorkBuddy 用同一条命令。")
+                Text(model.l10n.text("app.orderNote"))
             }
         }
         .formStyle(.grouped)
@@ -264,16 +319,16 @@ private struct PathsPage: View {
     var body: some View {
         Form {
             Section {
-                Picker("相对路径基准", selection: relativeMode) {
-                    Text("Git 仓库根").tag(RelativeAnchorMode.gitRoot)
-                    Text("当前访达文件夹").tag(RelativeAnchorMode.finderFolder)
+                Picker(model.l10n.text("paths.anchor"), selection: relativeMode) {
+                    Text(model.l10n.text("paths.gitRoot")).tag(RelativeAnchorMode.gitRoot)
+                    Text(model.l10n.text("paths.finderFolder")).tag(RelativeAnchorMode.finderFolder)
                 }
             } footer: {
-                Text("选中文件在仓库里时，复制相对路径会得到 src/main.go 这种路径。空白处右键则复制当前文件夹。找不到基准时改为绝对路径。")
+                Text(model.l10n.text("paths.note"))
             }
             Section {
                 if model.config.extraRoots.isEmpty {
-                    Text("还没有额外的项目根目录")
+                    Text(model.l10n.text("paths.empty"))
                         .foregroundStyle(.secondary)
                 }
                 ForEach(model.config.extraRoots, id: \.self) { root in
@@ -289,13 +344,15 @@ private struct PathsPage: View {
                             Image(systemName: "minus.circle")
                         }
                         .buttonStyle(.borderless)
+                        .help(model.l10n.text("action.remove"))
+                        .accessibilityLabel(model.l10n.text("action.remove"))
                     }
                 }
-                Button("添加项目根…") { pickingRoot = true }
+                Button(model.l10n.text("paths.add")) { pickingRoot = true }
             } header: {
-                Text("优先使用的项目根")
+                Text(model.l10n.text("paths.roots"))
             } footer: {
-                Text("文件落在这些目录里时，相对路径以最长匹配的那个根为准，优先于 Git 仓库根。")
+                Text(model.l10n.text("paths.rootsNote"))
             }
         }
         .formStyle(.grouped)

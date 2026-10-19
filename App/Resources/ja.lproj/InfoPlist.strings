@@ -1,0 +1,3 @@
+"CFBundleDisplayName" = "SuperMenu";
+"CFBundleName" = "SuperMenu";
+"NSAppleEventsUsageDescription" = "SuperMenuはパスのコピーやエディタでの起動のために、Finderで選択中のファイルを読み取る必要があります。";

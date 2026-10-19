@@ -1,0 +1,7 @@
+"超级右键：复制绝对路径" = "SuperMenu: Copy Absolute Path";
+"超级右键：复制相对路径" = "SuperMenu: Copy Relative Path";
+"超级右键：复制终端路径" = "SuperMenu: Copy Shell Path";
+"超级右键：用 VS Code 打开" = "SuperMenu: Open in VS Code";
+"超级右键：用 GoLand 打开" = "SuperMenu: Open in GoLand";
+"超级右键：用 Cursor 打开" = "SuperMenu: Open in Cursor";
+"超级右键：用 WorkBuddy 打开" = "SuperMenu: Open in WorkBuddy";

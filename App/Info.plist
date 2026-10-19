@@ -3,9 +3,18 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>zh-Hans</string>
+	<string>en</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>zh-Hans</string>
+		<string>ja</string>
+		<string>ko</string>
+	</array>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
 	<key>CFBundleDisplayName</key>
-	<string>超级右键</string>
+	<string>SuperMenu</string>
 	<key>CFBundleExecutable</key>
 	<string>SuperMenu</string>
 	<key>CFBundleIdentifier</key>
@@ -25,7 +34,7 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
 	<key>NSAppleEventsUsageDescription</key>
-	<string>超级右键需要读取访达当前选中的文件，才能复制路径并用编辑器打开。</string>
+	<string>SuperMenu needs to read your Finder selection to copy paths and open files in an editor.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSPrincipalClass</key>

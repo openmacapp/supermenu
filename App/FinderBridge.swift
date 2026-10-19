@@ -8,7 +8,7 @@ struct FinderSnapshot {
 }
 
 enum FinderBridge {
-    static func snapshot() -> FinderSnapshot {
+    static func snapshot(localization l10n: L10n) -> FinderSnapshot {
         let source = """
         tell application "Finder"
           set recordSep to ASCII character 30
@@ -29,11 +29,11 @@ enum FinderBridge {
         """
         var errorInfo: NSDictionary?
         guard let script = NSAppleScript(source: source) else {
-            return FinderSnapshot(folder: nil, selection: [], error: "无法查询访达")
+            return FinderSnapshot(folder: nil, selection: [], error: l10n.text("error.finderQuery"))
         }
         let result = script.executeAndReturnError(&errorInfo)
         if let errorInfo {
-            let message = errorInfo[NSAppleScript.errorMessage] as? String ?? "访达没有响应。请在系统设置的自动化里允许超级右键控制访达。"
+            let message = errorInfo[NSAppleScript.errorMessage] as? String ?? l10n.text("error.finderPermission")
             return FinderSnapshot(folder: nil, selection: [], error: message)
         }
         let text = result.stringValue ?? ""

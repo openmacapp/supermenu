@@ -45,13 +45,14 @@ public enum FileActions {
     public static func createFile(
         template: NewFileTemplate,
         in directory: URL,
-        fileManager: FileManager = .default
+        fileManager: FileManager = .default,
+        localization l10n: L10n = L10n()
     ) throws -> URL {
         let existing = Set(try fileManager.contentsOfDirectory(atPath: directory.path))
-        let name = uniqueChildName(stem: "未命名", ext: template.ext, existing: existing)
+        let name = uniqueChildName(stem: l10n.text("file.untitled"), ext: template.ext, existing: existing)
         let url = directory.appendingPathComponent(name)
         guard fileManager.createFile(atPath: url.path, contents: Data(template.contents.utf8)) else {
-            throw ActionError("无法创建 \(name)")
+            throw ActionError(l10n.text("error.createFile", name))
         }
         return url
     }
@@ -60,11 +61,12 @@ public enum FileActions {
         _ urls: [URL],
         into directory: URL,
         move: Bool,
-        fileManager: FileManager = .default
+        fileManager: FileManager = .default,
+        localization l10n: L10n = L10n()
     ) throws -> [URL] {
         var isDirectory: ObjCBool = false
         guard fileManager.fileExists(atPath: directory.path, isDirectory: &isDirectory), isDirectory.boolValue else {
-            throw ActionError("目标文件夹不存在")
+            throw ActionError(l10n.text("error.destinationMissing"))
         }
         var existing = Set(try fileManager.contentsOfDirectory(atPath: directory.path))
         var placed: [URL] = []
@@ -109,10 +111,10 @@ public enum FileActions {
         return hidden
     }
 
-    public static func hash(of url: URL, algorithm: HashAlgorithm) throws -> String {
+    public static func hash(of url: URL, algorithm: HashAlgorithm, localization l10n: L10n = L10n()) throws -> String {
         var isDirectory: ObjCBool = false
         guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory), !isDirectory.boolValue else {
-            throw ActionError("只能计算文件的校验值")
+            throw ActionError(l10n.text("error.hashFileOnly"))
         }
         let handle = try FileHandle(forReadingFrom: url)
         defer { try? handle.close() }

@@ -15,6 +15,11 @@ func checkEqual<T: Equatable>(_ actual: T, _ expected: T, _ message: String) thr
 }
 
 func run() throws {
+    // This executable is compiled without SwiftPM; verify the app-bundle resource path too.
+    for (language, expected) in [(AppLanguage.chinese, "复制绝对路径"), (.english, "Copy Absolute Path"),
+                                 (.japanese, "絶対パスをコピー"), (.korean, "절대 경로 복사")] {
+        try checkEqual(L10n(language: language).text("copy.absolute"), expected, "bundle localization")
+    }
     for command in BuiltinCommand.allCases {
         try checkEqual(MenuCommand.parse(MenuCommand.builtin(command).token), .builtin(command), command.rawValue)
     }
@@ -34,6 +39,7 @@ func run() throws {
     try checkEqual(PathCommands.stemText([file]), "a", "stem")
     try checkEqual(PathCommands.shellQuote("/tmp/a'b.txt"), "'/tmp/a'\\''b.txt'", "shell quote")
     var config = MenuConfig.standard
+    config.language = .chinese
     config.relativeMode = .gitRoot
     try checkEqual(
         PathCommands.relativeText(urls: [file], finderFolder: root.appendingPathComponent("src"), config: config),
@@ -59,7 +65,7 @@ func run() throws {
 
     try checkEqual(FileActions.uniqueChildName(stem: "未命名", ext: "txt", existing: ["未命名.txt", "未命名 2.txt"]), "未命名 3.txt", "unique name")
     let template = NewFileTemplate(id: "json", title: "JSON", ext: "json", contents: "{}\n", enabled: true)
-    let created = try FileActions.createFile(template: template, in: root)
+    let created = try FileActions.createFile(template: template, in: root, localization: L10n(language: .chinese))
     try checkEqual(created.lastPathComponent, "未命名.json", "created name")
     try checkEqual(try String(contentsOf: created, encoding: .utf8), "{}\n", "created contents")
 
@@ -98,18 +104,18 @@ func run() throws {
         "com.googlecode.iterm2"
     ]
     let context = MenuContext(kind: .items, targetedFolder: root, selection: [file])
-    let titles = flatten(MenuBuilder.build(context: context, config: .standard, installedBundleIDs: installed)).map(\.title)
+    let titles = flatten(MenuBuilder.build(context: context, config: config, installedBundleIDs: installed)).map(\.title)
     for title in ["复制绝对路径", "复制相对路径", "Visual Studio Code", "GoLand", "Cursor", "WorkBuddy", "文本文件"] {
         try check(titles.contains(title), "missing menu item \(title)")
     }
     let withoutGoLand = installed.filter { $0 != "com.jetbrains.goland" }
-    let goLand = flatten(MenuBuilder.build(context: context, config: .standard, installedBundleIDs: withoutGoLand))
+    let goLand = flatten(MenuBuilder.build(context: context, config: config, installedBundleIDs: withoutGoLand))
         .first { $0.title.contains("GoLand") }
     try checkEqual(goLand?.title, "GoLand（未安装）", "missing goland title")
     try checkEqual(goLand?.enabled, false, "missing goland disabled")
 
     let blank = MenuContext(kind: .container, targetedFolder: root, selection: [])
-    let blankCommands = flatten(MenuBuilder.build(context: blank, config: .standard, installedBundleIDs: installed))
+    let blankCommands = flatten(MenuBuilder.build(context: blank, config: config, installedBundleIDs: installed))
     try checkEqual(blankCommands.first { $0.command == .builtin(.copyAbsolute) }?.enabled, true, "blank copy")
     try checkEqual(blankCommands.first { $0.command == .sendCopy(targetID: "desktop") }?.enabled, false, "blank send")
 

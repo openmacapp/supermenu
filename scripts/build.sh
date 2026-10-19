@@ -9,6 +9,19 @@ APPEX="$APP/Contents/PlugIns/SuperMenuFinderSync.appex"
 
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APPEX/Contents/MacOS"
+mkdir -p "$APP/Contents/Resources" "$APPEX/Contents/Resources"
+
+zsh "$ROOT/scripts/build-icons.sh" "$APP/Contents/Resources"
+cp "$APP/Contents/Resources/"*.png "$APPEX/Contents/Resources/"
+cp "$APP/Contents/Resources/AppIcon.icns" "$APPEX/Contents/Resources/"
+for language in en zh-Hans ja ko; do
+  for resources in "$APP/Contents/Resources" "$APPEX/Contents/Resources"; do
+    mkdir -p "$resources/$language.lproj"
+    cp "$ROOT/Sources/SuperMenuCore/Resources/$language.lproj/Localizable.strings" "$resources/$language.lproj/"
+    cp "$ROOT/App/Resources/$language.lproj/InfoPlist.strings" "$resources/$language.lproj/"
+  done
+  cp "$ROOT/App/Resources/$language.lproj/ServicesMenu.strings" "$APP/Contents/Resources/$language.lproj/"
+done
 
 COMMON=(
   -parse-as-library

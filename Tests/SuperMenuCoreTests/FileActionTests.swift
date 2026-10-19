@@ -22,8 +22,8 @@ final class FileActionTests: XCTestCase {
 
     func testCreateFileWritesTemplateAndAvoidsCollision() throws {
         let template = NewFileTemplate(id: "json", title: "JSON", ext: "json", contents: "{}\n", enabled: true)
-        let first = try FileActions.createFile(template: template, in: root)
-        let second = try FileActions.createFile(template: template, in: root)
+        let first = try FileActions.createFile(template: template, in: root, localization: L10n(language: .chinese))
+        let second = try FileActions.createFile(template: template, in: root, localization: L10n(language: .chinese))
         XCTAssertEqual(first.lastPathComponent, "未命名.json")
         XCTAssertEqual(second.lastPathComponent, "未命名 2.json")
         XCTAssertEqual(try String(contentsOf: first, encoding: .utf8), "{}\n")

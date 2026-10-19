@@ -54,6 +54,7 @@ public struct SendTarget: Codable, Equatable, Identifiable {
 }
 
 public struct MenuConfig: Codable, Equatable {
+    public var language: AppLanguage
     public var copyAbsolute: Bool
     public var copyRelative: Bool
     public var copyShell: Bool
@@ -85,8 +86,10 @@ public struct MenuConfig: Codable, Equatable {
         extraRoots: [String],
         openWith: [OpenWithApp],
         newFileTypes: [NewFileTemplate],
-        sendTargets: [SendTarget]
+        sendTargets: [SendTarget],
+        language: AppLanguage = .system
     ) {
+        self.language = language
         self.copyAbsolute = copyAbsolute
         self.copyRelative = copyRelative
         self.copyShell = copyShell
@@ -143,6 +146,7 @@ public struct MenuConfig: Codable, Equatable {
     )
 
     private enum CodingKeys: String, CodingKey {
+        case language
         case copyAbsolute, copyRelative, copyShell, copyName, copyStem
         case terminal, iTerm, hashes, toggleHidden, folderFromName
         case relativeMode, extraRoots, openWith, newFileTypes, sendTargets
@@ -151,6 +155,8 @@ public struct MenuConfig: Codable, Equatable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let fallback = Self.standard
+        let storedLanguage = try container.decodeIfPresent(String.self, forKey: .language)
+        language = storedLanguage.flatMap(AppLanguage.init(rawValue:)) ?? .system
         copyAbsolute = try container.decodeIfPresent(Bool.self, forKey: .copyAbsolute) ?? fallback.copyAbsolute
         copyRelative = try container.decodeIfPresent(Bool.self, forKey: .copyRelative) ?? fallback.copyRelative
         copyShell = try container.decodeIfPresent(Bool.self, forKey: .copyShell) ?? fallback.copyShell

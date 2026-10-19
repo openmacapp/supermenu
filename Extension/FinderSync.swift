@@ -4,21 +4,15 @@ import Foundation
 
 @objc(FinderSync)
 final class FinderSync: FIFinderSync {
+    private let menuRenderer = MenuRenderer()
+
     override init() {
         super.init()
         FIFinderSyncController.default().directoryURLs = [URL(fileURLWithPath: "/", isDirectory: true)]
     }
 
-    override var toolbarItemName: String { "超级右键" }
-
-    override var toolbarItemToolTip: String { "复制路径，或用编辑器打开" }
-
-    override var toolbarItemImage: NSImage {
-        NSImage(systemSymbolName: "contextualmenu.and.cursorarrow", accessibilityDescription: "超级右键")
-            ?? NSImage(size: NSSize(width: 16, height: 16))
-    }
-
-    override func menu(for menuKind: FIMenuKind) -> NSMenu {
+    override func menu(for menuKind: FIMenuKind) -> NSMenu? {
+        guard menuKind != .toolbarItemMenu else { return nil }
         let controller = FIFinderSyncController.default()
         let context = MenuContext(
             kind: surface(for: menuKind),
@@ -31,11 +25,19 @@ final class FinderSync: FIFinderSync {
             config: config,
             installedBundleIDs: InstalledApps.bundleIDs(referencedBy: config)
         )
-        return MenuRenderer.menu(from: nodes, target: self, action: #selector(performCommand(_:)))
+        let menu = menuRenderer.menu(from: nodes, target: self, action: #selector(performCommand(_:)))
+        // Finder inserts the returned items directly into its context menu.
+        guard !nodes.isEmpty else { return nil }
+        let root = NSMenu()
+        let item = NSMenuItem(title: L10n(language: config.language).text("app.name"), action: nil, keyEquivalent: "")
+        item.image = MenuIcons.finderRoot
+        item.submenu = menu
+        root.addItem(item)
+        return root
     }
 
     @objc func performCommand(_ sender: NSMenuItem) {
-        guard let token = sender.representedObject as? String, let command = MenuCommand.parse(token) else { return }
+        guard let command = menuRenderer.command(for: sender) else { return }
         let controller = FIFinderSyncController.default()
         let context = MenuContext(
             kind: .items,
@@ -43,7 +45,7 @@ final class FinderSync: FIFinderSync {
             selection: controller.selectedItemURLs() ?? []
         )
         let config = ConfigStore.load(from: ConfigStore.defaultURL())
-        CommandRunner.run(command, context: context, config: config, presentErrors: false)
+        CommandRunner.run(command, context: context, config: config, presentErrors: true)
     }
 
     private func surface(for menuKind: FIMenuKind) -> MenuSurface {

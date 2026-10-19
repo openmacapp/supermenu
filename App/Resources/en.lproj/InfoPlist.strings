@@ -1,0 +1,3 @@
+"CFBundleDisplayName" = "SuperMenu";
+"CFBundleName" = "SuperMenu";
+"NSAppleEventsUsageDescription" = "SuperMenu needs to read your Finder selection to copy paths and open files in an editor.";
