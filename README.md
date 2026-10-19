@@ -1,4 +1,11 @@
 <p align="center">
+  <strong>简体中文</strong> ·
+  <a href="README.en.md">English</a> ·
+  <a href="README.ja.md">日本語</a> ·
+  <a href="README.ko.md">한국어</a>
+</p>
+
+<p align="center">
   <img src="site/assets/app-icon.png" width="112" alt="SuperMenu 图标">
 </p>
 
@@ -7,7 +14,7 @@
 <p align="center">把常用文件操作，放回右键菜单。</p>
 <p align="center">
   <a href="https://openmacapp.github.io/supermenu/">项目网站</a> ·
-  <a href="#安装">安装</a> ·
+  <a href="#installation">安装</a> ·
   <a href="https://github.com/openmacapp/supermenu/issues">反馈问题</a> ·
   <a href="LICENSE">GPL v2</a>
 </p>
@@ -15,6 +22,8 @@
 SuperMenu 是原生 macOS Finder 扩展。选中文件或文件夹，在右键菜单的「超级右键」中复制路径、打开编辑器、新建文件或整理文件。功能按用途收进五个分组，设置里可以关闭不需要的操作。
 
 支持简体中文、日本語、한국어和 English，可跟随系统或在应用内切换。
+
+使用顶部的语言链接切换 README；应用语言在 SuperMenu 设置中切换，网站语言通过页面右上角的选择器切换。
 
 ## 功能
 
@@ -29,6 +38,8 @@ SuperMenu 是原生 macOS Finder 扩展。选中文件或文件夹，在右键�
 - 相对路径默认以 Git 仓库根为基准，仓库外使用当前 Finder 文件夹；也可以设置优先使用的项目根。
 - 已安装的应用使用原始应用图标；不可用的应用不会作为可执行操作。
 - 菜单栏也可以操作当前 Finder 选择，应用中提供语言、菜单、打开方式、路径和关于设置。
+
+<a id="installation"></a>
 
 ## 安装
 
@@ -99,5 +110,7 @@ python3 -m http.server 8080 --directory site
 ## 反馈与贡献
 
 欢迎通过 [Issues](https://github.com/openmacapp/supermenu/issues) 提交问题或建议。描述 macOS 版本、应用版本、操作入口、选择的是文件还是文件夹，以及预期和实际结果。提交代码前请运行对应验证，并保持四种语言的 key 一致。
+
+修改功能、安装步骤或使用限制时，请同步更新四份 README：`README.md`、`README.en.md`、`README.ja.md`、`README.ko.md`。各语言版本应保持相同的章节结构、命令和链接目标。
 
 项目采用 [GNU GPL v2](LICENSE) 许可。

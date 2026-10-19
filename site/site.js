@@ -339,6 +339,13 @@ function renderDemo() {
   }
 }
 
+const readmeFiles = {
+  "zh-Hans": "README.md",
+  en: "README.en.md",
+  ja: "README.ja.md",
+  ko: "README.ko.md",
+};
+
 function setLanguage(language) {
   currentLanguage = Object.hasOwn(translations, language) ? language : "en";
   const text = translations[currentLanguage];
@@ -351,6 +358,8 @@ function setLanguage(language) {
   document.title = `SuperMenu — ${text.heroLine1} ${text.heroLine2}`;
   document.querySelector('meta[name="description"]').content =
     text.heroDescription;
+  document.querySelector('[data-i18n="fullGuide"]').href =
+    `https://github.com/openmacapp/supermenu/blob/master/${readmeFiles[currentLanguage]}#installation`;
   renderDemo();
 }
 
