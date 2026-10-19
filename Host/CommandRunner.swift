@@ -102,6 +102,18 @@ enum CommandRunner {
         let l10n = L10n(language: config.language)
         let paths = PathCommands.pathTargets(context)
         switch command {
+        case .gitHistory:
+            guard paths.count == 1, let path = paths.first,
+                  let url = GitLaunchURL.make(path),
+                  let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "org.openmacapp.supermenu") else {
+                throw ActionError(l10n.text("error.noSelection"))
+            }
+            let options = NSWorkspace.OpenConfiguration()
+            NSWorkspace.shared.open([url], withApplicationAt: app, configuration: options) { _, error in
+                if let error {
+                    DispatchQueue.main.async { fail(error.localizedDescription, presentErrors: presentErrors, localization: l10n) }
+                }
+            }
         case .copyAbsolute:
             try requirePaths(paths, localization: l10n)
             paste(PathCommands.absoluteText(paths))

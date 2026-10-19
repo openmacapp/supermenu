@@ -39,13 +39,21 @@ README 언어는 페이지 상단의 링크로 전환하세요. 앱 언어는 Su
 - 설치된 앱은 원래 아이콘으로 표시됩니다. 사용할 수 없는 앱은 메뉴에서 실행할 수 없습니다.
 - 메뉴 막대에서도 Finder의 선택 항목을 작업할 수 있습니다. 앱에는 언어, 메뉴, 다음으로 열기, 경로, 앱 정보 설정이 있습니다.
 
+## Git 커밋 기록
+
+Finder에서 저장소 폴더를 우클릭하고 **SuperMenu → Git 커밋 기록**을 선택하거나 앱의 **Git → 저장소 열기**를 사용하세요. 그래프는 분기와 병합을 표시합니다. 커밋 하나를 선택하면 파일과 diff를, 여러 개를 선택하면 squash/revert를 사용할 수 있습니다. 고급 작업은 선형 기록의 순서 변경·결합·메시지 편집과 soft/mixed/hard reset을 지원합니다.
+
+실행 전 영향 범위를 확인하며 저장소 상태가 바뀌면 다시 미리 봐야 합니다. 깨끗한 작업 트리가 필요하고 자동 스태시·삭제·푸시는 하지 않습니다. 병합 커밋 재작성이나 revert의 부모 자동 선택은 지원하지 않습니다. 편집기에서 충돌을 수정하고 해결됨으로 표시한 뒤 계속하거나 중단하세요. 원격 경고는 로컬에 기록된 참조만 사용합니다.
+
+Git 실행 및 그래프 배치는 MIT 라이선스의 GitKit을 재사용합니다. 앱 정보 → 오픈 소스 라이선스에서 전문을 볼 수 있습니다. [타사 소프트웨어 고지](THIRD_PARTY_NOTICES.md)를 참고하세요.
+
 <a id="installation"></a>
 
 ## 설치
 
 현재 **소스 빌드**를 제공합니다. 사전 빌드된 설치 파일은 아직 배포하지 않습니다.
 
-요구 사항: **Apple Silicon Mac, macOS 14 이상, Xcode Command Line Tools**. 현재 빌드 스크립트는 `arm64` 앱을 생성하며, Intel 빌드는 제공하지 않습니다.
+요구 사항: **Apple Silicon Mac, macOS 14 이상, Xcode Command Line Tools (Swift 6+)**. 현재 빌드 스크립트는 `arm64` 앱을 생성하며, Intel 빌드는 제공하지 않습니다.
 
 개발 도구가 없다면 아래 명령을 실행하고 시스템의 설치 안내를 완료하세요.
 
@@ -108,6 +116,8 @@ python3 -m http.server 8080 --directory site
 `.github/workflows/pages.yml`은 `master`에서 관련 파일이 변경되면 `site/`를 배포하며, 수동 실행도 지원합니다. GitHub 저장소의 Pages 배포 소스는 **GitHub Actions**로 설정하세요.
 
 ## 피드백 및 기여
+
+첫 커밋 전에 `python3 scripts/install-privacy-hooks.py`를 실행하고 GitHub 비공개 이메일을 사용하세요. 허용되지 않는 작성자 정보와 알려진 민감 정보는 차단됩니다. 사용자 정의 hook 연결과 검증 방법은 [커밋 개인정보 검사](docs/privacy.md)를 참고하세요.
 
 버그나 개선 제안은 [Issues](https://github.com/openmacapp/supermenu/issues)에 남겨 주세요. macOS 버전, 앱 버전, 사용한 진입점, 파일과 폴더 중 무엇을 선택했는지, 예상 결과와 실제 결과를 포함해 주세요. 코드를 제출하기 전에 관련 검사를 실행하고, 네 언어의 현지화 키를 일치시켜 주세요.
 

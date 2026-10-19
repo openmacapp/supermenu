@@ -39,13 +39,21 @@ SuperMenu 是原生 macOS Finder 扩展。选中文件或文件夹，在右键�
 - 已安装的应用使用原始应用图标；不可用的应用不会作为可执行操作。
 - 菜单栏也可以操作当前 Finder 选择，应用中提供语言、菜单、打开方式、路径和关于设置。
 
+## Git 提交历史
+
+在 Finder 中右键仓库目录，选择 **超级右键 → Git 提交历史**；也可从应用的 **Git → 打开仓库** 进入。提交图展示分支与合并关系，单选查看文件和 diff，多选执行 squash 或 revert。高级操作支持整理线性提交（调整顺序、合并、修改说明）和 soft／mixed／hard reset。
+
+执行前会展示影响范围，仓库状态变化后须重新预览。历史操作要求干净工作区；不自动 stash、丢弃修改或推送。当前版本不改写 merge 提交，不自动选择 merge revert 的主线。冲突需在编辑器中解决，再标记已解决并继续，或中止恢复。远端提示仅依据本地已知引用，不代表已刷新服务器状态。
+
+Git 执行与提交图复用 MIT 许可的 GitKit，许可全文可在“关于 → 开源许可”查看，详见 [第三方声明](THIRD_PARTY_NOTICES.md)。
+
 <a id="installation"></a>
 
 ## 安装
 
 当前提供**源码构建**，尚未发布预编译安装包。
 
-要求：**Apple Silicon Mac、macOS 14 或更新版本、Xcode Command Line Tools**。当前构建脚本固定生成 `arm64` 应用，未提供 Intel 构建。
+要求：**Apple Silicon Mac、macOS 14 或更新版本、Xcode Command Line Tools (Swift 6+)**。当前构建脚本固定生成 `arm64` 应用，未提供 Intel 构建。
 
 如果没有开发工具，先运行并完成系统安装提示：
 
@@ -108,6 +116,8 @@ python3 -m http.server 8080 --directory site
 `.github/workflows/pages.yml` 在 `master` 上相关文件更新时发布 `site/`，也支持手动触发。GitHub 仓库的 Pages 发布源应为 **GitHub Actions**。
 
 ## 反馈与贡献
+
+首次提交前运行 `python3 scripts/install-privacy-hooks.py`，并使用 GitHub 隐私邮箱。检查会拦截不合规的提交身份及已知敏感内容；自定义 hooks 的接入与验证方法见 [提交隐私检查](docs/privacy.md)。
 
 欢迎通过 [Issues](https://github.com/openmacapp/supermenu/issues) 提交问题或建议。描述 macOS 版本、应用版本、操作入口、选择的是文件还是文件夹，以及预期和实际结果。提交代码前请运行对应验证，并保持四种语言的 key 一致。
 

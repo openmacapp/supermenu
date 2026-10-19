@@ -1,6 +1,7 @@
 import Foundation
 
 public enum BuiltinCommand: String, Codable, Equatable, CaseIterable {
+    case gitHistory = "git.history"
     case copyAbsolute = "copy.absolute"
     case copyRelative = "copy.relative"
     case copyShell = "copy.shell"

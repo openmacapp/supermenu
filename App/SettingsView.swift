@@ -3,6 +3,10 @@ import FinderSync
 import SwiftUI
 import UniformTypeIdentifiers
 
+extension Notification.Name {
+    static let superMenuConfigurationChanged = Notification.Name("SuperMenuConfigurationChanged")
+}
+
 enum SettingsPage: String, CaseIterable, Identifiable {
     case enable
     case menu
@@ -45,6 +49,7 @@ final class SettingsModel: ObservableObject {
     func save() {
         do {
             try ConfigStore.save(config, to: url)
+            NotificationCenter.default.post(name: .superMenuConfigurationChanged, object: nil)
         } catch {
             NSSound.beep()
         }

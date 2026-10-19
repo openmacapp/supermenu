@@ -45,7 +45,7 @@ const translations = {
       "Create files, copy or move to common folders, calculate checksums, or toggle hidden files. Turn off any actions you don't need.",
     installTitle: "Make it part of your day.",
     installIntro:
-      "Build from source on an Apple Silicon Mac with macOS 14 or later and Xcode Command Line Tools.",
+      "Build from source on an Apple Silicon Mac with macOS 14 or later and Xcode Command Line Tools (Swift 6+).",
     releaseNote:
       "No prebuilt installer is published yet. Current builds use local signing and are not notarized.",
     fullGuide: "Full installation guide ↗",
@@ -111,7 +111,7 @@ const translations = {
       "ファイル作成、よく使うフォルダへのコピーや移動、チェックサムの計算、表示・非表示の切り替え。使わない操作は設定でオフにできます。",
     installTitle: "ここから始めましょう。",
     installIntro:
-      "現在はソースからビルドします。Apple Silicon搭載Mac、macOS 14以降、Xcode Command Line Toolsが必要です。",
+      "現在はソースからビルドします。Apple Silicon搭載Mac、macOS 14以降、Xcode Command Line Tools (Swift 6+)が必要です。",
     releaseNote:
       "ビルド済みインストーラは未公開です。現在はローカル署名を使用し、公証は行っていません。",
     fullGuide: "詳しいインストール手順 ↗",
@@ -178,7 +178,7 @@ const translations = {
       "파일 만들기, 자주 쓰는 폴더로 복사 또는 이동, 체크섬 계산, 숨김 전환까지. 필요 없는 작업은 설정에서 끌 수 있습니다.",
     installTitle: "여기서 시작하세요.",
     installIntro:
-      "현재 소스 빌드를 제공합니다. Apple Silicon Mac, macOS 14 이상, Xcode Command Line Tools가 필요합니다.",
+      "현재 소스 빌드를 제공합니다. Apple Silicon Mac, macOS 14 이상, Xcode Command Line Tools (Swift 6+)가 필요합니다.",
     releaseNote:
       "사전 빌드된 설치 파일은 아직 없습니다. 현재 빌드는 로컬 서명을 사용하며 공증되지 않았습니다.",
     fullGuide: "전체 설치 안내 ↗",

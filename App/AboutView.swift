@@ -3,6 +3,7 @@ import SwiftUI
 struct AboutView: View {
     static let windowID = "about"
 
+    @State private var showLicenses = false
     @ObservedObject var model: SettingsModel
 
     private var version: String {
@@ -39,6 +40,7 @@ struct AboutView: View {
                 Link(l10n.text("about.project"), destination: URL(string: "https://github.com/openmacapp/supermenu")!)
                 Link(l10n.text("about.feedback"), destination: URL(string: "https://github.com/openmacapp/supermenu/issues")!)
             }
+            Button(l10n.text("about.licenses")) { showLicenses = true }
             Text(l10n.text("about.license"))
                 .font(.footnote)
                 .foregroundStyle(.secondary)
@@ -47,6 +49,19 @@ struct AboutView: View {
         .padding(32)
         .frame(width: 420)
         .environment(\.locale, l10n.locale)
+        .sheet(isPresented: $showLicenses) {
+            VStack {
+                GitDiffText(text: licenseText).frame(width: 700, height: 500)
+                Button(l10n.text("git.cancel")) { showLicenses = false }.keyboardShortcut(.cancelAction)
+            }.padding()
+        }
+    }
+    private var licenseText: String {
+        let paths = ["LICENSE.txt", "THIRD_PARTY_NOTICES.md", "ThirdPartyLicenses/Gitify-MIT.txt"]
+        return paths.compactMap { path in
+            guard let root = Bundle.main.resourceURL else { return nil }
+            return try? String(contentsOf: root.appendingPathComponent(path))
+        }.joined(separator: "\n\n────────────────────────\n\n")
     }
 }
 

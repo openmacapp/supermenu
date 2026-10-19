@@ -92,6 +92,9 @@ public enum MenuBuilder {
         }
         appendGroup(id: "sub:tools", titleKey: "tools.heading", children: toolGroup)
 
+        if paths.count == 1, let path = paths.first, PathCommands.gitRoot(containing: path) != nil {
+            nodes.append(command(.builtin(.gitHistory), title: l10n.text("git.title"), enabled: true))
+        }
         return nodes
     }
 

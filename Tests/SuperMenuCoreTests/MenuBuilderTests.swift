@@ -91,7 +91,7 @@ final class MenuBuilderTests: XCTestCase {
             }
         }
         let commands = flatten(nodes).map(\.command)
-        let expected = BuiltinCommand.allCases.map(MenuCommand.builtin)
+        let expected = BuiltinCommand.allCases.filter { $0 != .gitHistory }.map(MenuCommand.builtin)
             + chineseConfig.openWith.map { .openApp(bundleIDs: $0.bundleIDs) }
             + chineseConfig.newFileTypes.map { .newFile(templateID: $0.id) }
             + chineseConfig.sendTargets.flatMap { [MenuCommand.sendCopy(targetID: $0.id), .sendMove(targetID: $0.id)] }

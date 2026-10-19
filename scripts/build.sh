@@ -32,7 +32,15 @@ COMMON=(
   -framework FinderSync
 )
 
+# Build only the Git library, never Gitify's application / Sparkle framework.
+swift build --package-path "$ROOT" --build-system native --sdk "$SDK" --triple "$TARGET" -c release --product SuperMenuGit
+GIT_BUILD="$(swift build --package-path "$ROOT" --build-system native --sdk "$SDK" --triple "$TARGET" -c release --show-bin-path)"
+cp "$ROOT/LICENSE" "$APP/Contents/Resources/LICENSE.txt"
+cp -R "$ROOT/ThirdPartyLicenses" "$APP/Contents/Resources/ThirdPartyLicenses"
+cp "$ROOT/THIRD_PARTY_NOTICES.md" "$APP/Contents/Resources/"
+
 swiftc "${COMMON[@]}" \
+  -I "$GIT_BUILD/Modules" -L "$GIT_BUILD" -lSuperMenuGit \
   -framework SwiftUI \
   -o "$APP/Contents/MacOS/SuperMenu" \
   "$ROOT"/Sources/SuperMenuCore/*.swift \

@@ -21,6 +21,7 @@ enum MenuIcons {
             switch command {
             case .builtin(let builtin):
                 switch builtin {
+                case .gitHistory: return "arrow.triangle.branch"
                 case .copyAbsolute: return "doc.on.doc"
                 case .copyRelative: return "arrow.triangle.branch"
                 case .copyShell: return "terminal"

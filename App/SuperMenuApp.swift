@@ -12,6 +12,9 @@ struct SuperMenuApp: App {
         }
         .defaultSize(width: 820, height: 580)
         .commands {
+            CommandMenu("Git") {
+                Button(model.l10n.text("git.openRepository")) { GitWindows.shared.chooseRepository() }
+            }
             CommandGroup(replacing: .newItem) {}
             CommandGroup(replacing: .appInfo) {
                 AboutButton(model: model)
@@ -42,6 +45,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
         for window in NSApp.windows where window.canBecomeKey {
             window.makeKeyAndOrderFront(nil)
+        }
+    }
+
+    func application(_ application: NSApplication, open urls: [URL]) {
+        for url in urls {
+            if let directory = GitLaunchURL.directory(from: url) {
+                Task { @MainActor in GitWindows.shared.open(directory) }
+            }
         }
     }
 

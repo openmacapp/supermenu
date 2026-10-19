@@ -39,13 +39,21 @@ Use the links at the top to switch README languages. Change the app language in 
 - Installed apps display their original icons; unavailable apps cannot be launched from the menu.
 - The menu bar can also act on your Finder selection. The app provides language, menu, Open With, path, and About settings.
 
+## Git history
+
+Right-click a repository directory in Finder and choose **SuperMenu → Git History**, or use **Git → Open Repository** in the app. The graph shows branches and merges. Select a commit for files and diffs, or multiple commits for squash/revert. Advanced actions organize linear history (reorder, combine, edit messages) and reset with soft/mixed/hard modes.
+
+Every operation has a preview; repository changes invalidate it. A clean working tree is required. Nothing is automatically stashed, discarded or pushed. Merge commits are not rewritten and merge-revert mainlines are not guessed. Resolve conflicts in your editor, mark files resolved, then continue or abort. Remote warnings use locally known refs, not freshly fetched server state.
+
+Git execution and graph layout reuse MIT-licensed GitKit. Full licenses are available in About → Open-source licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
+
 <a id="installation"></a>
 
 ## Installation
 
 Currently available as a **source build**. No prebuilt installer has been published yet.
 
-Requirements: **an Apple Silicon Mac, macOS 14 or later, and Xcode Command Line Tools**. The current build script targets `arm64`; Intel builds are not provided.
+Requirements: **an Apple Silicon Mac, macOS 14 or later, and Xcode Command Line Tools (Swift 6+)**. The current build script targets `arm64`; Intel builds are not provided.
 
 If the developer tools are missing, run this command and complete the system installation prompt:
 
@@ -108,6 +116,8 @@ Open `http://localhost:8080`. Page structure, styles, and four-language copy liv
 `.github/workflows/pages.yml` publishes `site/` when relevant files change on `master`, and also supports manual runs. Set the repository's Pages publishing source to **GitHub Actions**.
 
 ## Feedback and contributions
+
+Before your first commit, run `python3 scripts/install-privacy-hooks.py` and use your GitHub private email. Checks reject noncompliant identities and recognized private data; see [commit privacy checks](docs/privacy.md) for custom hook integration and verification.
 
 Use [Issues](https://github.com/openmacapp/supermenu/issues) to report bugs or suggest improvements. Include the macOS and app versions, which entry point you used, whether you selected a file or folder, and the expected and actual results. Run the relevant checks before submitting code, and keep localization keys consistent across all four languages.
 
