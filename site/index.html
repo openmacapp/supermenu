@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="SuperMenu 超级右键：原生 macOS Finder 扩展。复制路径、打开编辑器、新建与整理文件，支持中日韩英四种语言。"
+    />
+    <meta name="theme-color" content="#f7f6f2" />
+    <meta property="og:title" content="SuperMenu · 超级右键" />
+    <meta
+      property="og:description"
+      content="把常用文件操作，放回右键菜单。A little more power in every right-click."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://openmacapp.github.io/supermenu/" />
+    <meta
+      property="og:image"
+      content="https://openmacapp.github.io/supermenu/assets/app-icon.png"
+    />
+    <link rel="canonical" href="https://openmacapp.github.io/supermenu/" />
+    <link rel="icon" type="image/png" href="assets/app-icon.png" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="site.js" defer></script>
+    <title>SuperMenu · 超级右键 — 文件操作，触手可及</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main" data-i18n="skip">跳转到正文</a>
+    <header class="site-header wrap">
+      <a class="brand" href="#" aria-label="SuperMenu"
+        ><img src="assets/app-icon.png" width="44" height="44" alt="" /><span
+          >SuperMenu<span class="brand-dot">.</span></span
+        ></a
+      >
+      <nav aria-label="Navigation">
+        <a href="#features" data-i18n="navFeatures">功能</a>
+        <a href="#install" data-i18n="navInstall">安装</a>
+        <a href="https://github.com/openmacapp/supermenu">GitHub ↗</a>
+        <label class="language"
+          ><span class="sr-only" data-i18n="language">语言</span
+          ><select id="language">
+            <option value="zh-Hans">简体中文</option>
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+            <option value="ko">한국어</option>
+          </select></label
+        >
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero wrap">
+        <div class="hero-copy">
+          <p class="eyebrow">
+            <span class="tiny-square"></span> A SMALL UTILITY. A BETTER FLOW.
+          </p>
+          <h1>
+            <span data-i18n="heroLine1">顺手的操作，</span><br /><span
+              class="accent"
+              data-i18n="heroLine2"
+              >就在右键里。</span
+            >
+          </h1>
+          <p class="hero-description" data-i18n="heroDescription">
+            复制路径、打开编辑器、新建文件。让每天重复的小事，在 Finder
+            里一步完成。
+          </p>
+          <div class="actions">
+            <a class="button primary" href="#install"
+              ><span data-i18n="getStarted">开始使用</span
+              ><span aria-hidden="true">↗</span></a
+            ><a
+              class="text-link"
+              href="https://github.com/openmacapp/supermenu"
+              data-i18n="viewSource"
+              >查看源代码 →</a
+            >
+          </div>
+          <p class="compatibility">
+            macOS 14+ <span>·</span> Apple Silicon <span>·</span>
+            <span data-i18n="openSource">开源免费</span>
+          </p>
+        </div>
+        <div class="hero-visual">
+          <div class="visual-caption">
+            <span>FINDER / SUPERCHARGED</span><span aria-hidden="true">↙</span>
+          </div>
+          <div class="finder-demo">
+            <div class="finder-chrome">
+              <span class="traffic-lights" aria-hidden="true"
+                ><i></i><i></i><i></i></span
+              ><span>Projects</span><span aria-hidden="true">⌘</span>
+            </div>
+            <div class="file-row">
+              <span class="file-icon" aria-hidden="true">↳</span>
+              <div>
+                <strong>hello-world.swift</strong
+                ><small data-i18n="demoFile">一个文件，无限顺手</small>
+              </div>
+            </div>
+            <div class="demo-menu">
+              <div class="menu-brand">
+                <img
+                  src="assets/app-icon.png"
+                  width="28"
+                  height="28"
+                  alt=""
+                /><strong>SuperMenu</strong>
+              </div>
+              <div
+                id="demo-groups"
+                class="demo-groups"
+                role="group"
+                aria-label="SuperMenu demo"
+              >
+                <button
+                  class="group-button selected"
+                  data-group="copy"
+                  aria-pressed="true"
+                >
+                  <span aria-hidden="true">⧉</span
+                  ><span data-i18n="groupCopy">复制信息</span
+                  ><span aria-hidden="true">›</span>
+                </button>
+                <button
+                  class="group-button"
+                  data-group="open"
+                  aria-pressed="false"
+                >
+                  <span aria-hidden="true">↗</span
+                  ><span data-i18n="groupOpen">打开方式</span
+                  ><span aria-hidden="true">›</span>
+                </button>
+                <button
+                  class="group-button"
+                  data-group="new"
+                  aria-pressed="false"
+                >
+                  <span aria-hidden="true">＋</span
+                  ><span data-i18n="groupNew">新建</span
+                  ><span aria-hidden="true">›</span>
+                </button>
+                <button
+                  class="group-button"
+                  data-group="send"
+                  aria-pressed="false"
+                >
+                  <span aria-hidden="true">↪</span
+                  ><span data-i18n="groupSend">发送到</span
+                  ><span aria-hidden="true">›</span>
+                </button>
+                <button
+                  class="group-button"
+                  data-group="tools"
+                  aria-pressed="false"
+                >
+                  <span aria-hidden="true">⌗</span
+                  ><span data-i18n="groupTools">文件工具</span
+                  ><span aria-hidden="true">›</span>
+                </button>
+              </div>
+            </div>
+            <div class="demo-submenu" aria-live="polite" aria-atomic="true">
+              <p id="demo-title">复制信息</p>
+              <ul id="demo-items">
+                <li>复制绝对路径</li>
+                <li>复制相对路径</li>
+                <li>复制终端路径</li>
+                <li>复制文件名</li>
+              </ul>
+            </div>
+          </div>
+          <p class="demo-note" data-i18n="demoNote">
+            菜单交互示意 · 点击分组，看看里面有什么
+          </p>
+        </div>
+      </section>
+
+      <div class="facts wrap">
+        <p>
+          <strong>01</strong
+          ><span data-i18n="factNative">原生 Finder 扩展</span>
+        </p>
+        <p>
+          <strong>05</strong
+          ><span data-i18n="factGroups">按用途分组，菜单更清楚</span>
+        </p>
+        <p>
+          <strong>04</strong
+          ><span data-i18n="factLanguages">中 · 日 · 韩 · 英</span>
+        </p>
+      </div>
+
+      <section class="features wrap section" id="features">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">LESS FRICTION, MORE FLOW</p>
+            <h2 data-i18n="featuresTitle">少一点来回，多一点顺手。</h2>
+          </div>
+          <p data-i18n="featuresIntro">
+            熟悉的 Finder，多几个刚好用得上的动作。
+          </p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <span class="feature-number">01 / PATHS</span>
+            <div class="path-example">
+              <span>~/project/</span><strong>src/main.go</strong>
+            </div>
+            <h3 data-i18n="pathsTitle">路径，复制就能用。</h3>
+            <p data-i18n="pathsDescription">
+              绝对路径、相对路径、终端转义路径，一次复制。自动识别 Git
+              根目录，也支持自定义项目根。
+            </p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-number">02 / OPEN WITH</span>
+            <div class="app-names">
+              <span>GoLand</span><span>Cursor</span><span>VS Code</span
+              ><span>WorkBuddy</span>
+            </div>
+            <h3 data-i18n="appsTitle">用你习惯的工具打开。</h3>
+            <p data-i18n="appsDescription">
+              文件交给编辑器，目录交给 Terminal 或
+              iTerm。支持添加应用，并展示已安装应用的原始图标。
+            </p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-number">03 / FILE ACTIONS</span>
+            <div class="file-types">
+              <span>.md</span><span>.json</span><span>.swift</span
+              ><span>.go</span>
+            </div>
+            <h3 data-i18n="filesTitle">文件小事，就地处理。</h3>
+            <p data-i18n="filesDescription">
+              新建文件、复制或移动到常用目录、计算校验值、显示隐藏文件。需要的留下，不用的在设置中关闭。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="install-section" id="install">
+        <div class="wrap install-grid">
+          <div>
+            <p class="eyebrow">MAKE YOURSELF AT HOME</p>
+            <h2 data-i18n="installTitle">从这里开始。</h2>
+            <p class="install-intro" data-i18n="installIntro">
+              目前提供源码构建。准备一台 Apple Silicon Mac、macOS 14
+              或更新版本，以及 Xcode Command Line Tools。
+            </p>
+            <p class="release-note" data-i18n="releaseNote">
+              尚未发布预编译安装包。当前构建使用本地签名，未做公证。
+            </p>
+            <a
+              class="text-link"
+              href="https://github.com/openmacapp/supermenu#安装"
+              data-i18n="fullGuide"
+              >完整安装说明 ↗</a
+            >
+          </div>
+          <div class="install-steps">
+            <article class="step">
+              <span class="step-number">1</span>
+              <div>
+                <h3 data-i18n="step1Title">构建并安装</h3>
+                <p data-i18n="step1Description">
+                  先安装 Command Line Tools，再运行以下命令。
+                </p>
+                <code class="prerequisite">xcode-select --install</code>
+                <pre><code>git clone https://github.com/openmacapp/supermenu.git
+cd supermenu
+zsh scripts/build.sh
+zsh scripts/install.sh
+open "$HOME/Applications/SuperMenu.app"</code></pre>
+              </div>
+            </article>
+            <article class="step">
+              <span class="step-number">2</span>
+              <div>
+                <h3 data-i18n="step2Title">启用 Finder 扩展</h3>
+                <p data-i18n="step2Description">
+                  打开应用的「启用」页，点击「打开访达扩展设置」，在系统设置中启用
+                  SuperMenu。
+                </p>
+              </div>
+            </article>
+            <article class="step">
+              <span class="step-number">3</span>
+              <div>
+                <h3 data-i18n="step3Title">回到 Finder，右键一下</h3>
+                <p data-i18n="step3Description">
+                  选择文件或文件夹，展开「超级右键」。也可以在窗口空白处操作当前目录。
+                </p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="faq wrap section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">GOOD TO KNOW</p>
+            <h2 data-i18n="faqTitle">还有这些小细节。</h2>
+          </div>
+        </div>
+        <div class="faq-list">
+          <details>
+            <summary data-i18n="faq1Title">为什么右键菜单没有出现？</summary>
+            <p data-i18n="faq1Answer">
+              先在应用「启用」页确认 Finder 扩展已启用，然后重新打开 Finder
+              菜单。扩展入口与系统「服务」菜单是不同的；应用不会添加额外的
+              Finder 工具栏按钮。
+            </p>
+          </details>
+          <details>
+            <summary data-i18n="faq2Title">需要什么权限？</summary>
+            <p data-i18n="faq2Answer">
+              Finder 扩展需要在系统设置中启用。菜单栏入口读取 Finder
+              选择时，还需要允许应用控制 Finder；可在「隐私与安全性 →
+              自动化」中调整。
+            </p>
+          </details>
+          <details>
+            <summary data-i18n="faq3Title">可以切换语言和菜单功能吗？</summary>
+            <p data-i18n="faq3Answer">
+              可以。在设置中选择简体中文、日语、韩语、英语或跟随系统，也可以关闭不需要的操作。系统服务、权限提示和系统应用名称仍跟随
+              macOS 语言。
+            </p>
+          </details>
+          <details>
+            <summary data-i18n="faq4Title">支持 Intel Mac 吗？</summary>
+            <p data-i18n="faq4Answer">
+              当前构建脚本固定生成 arm64 应用，面向 Apple
+              Silicon。尚未提供或验证 Intel 构建。
+            </p>
+          </details>
+        </div>
+      </section>
+      <section class="closing wrap">
+        <img src="assets/app-icon.png" width="76" height="76" alt="" />
+        <div>
+          <h2 data-i18n="closingTitle">一个小工具，让工作更顺手。</h2>
+          <p data-i18n="closingDescription">
+            开源、原生，持续打磨。欢迎一起改进。
+          </p>
+        </div>
+        <a
+          class="button secondary"
+          href="https://github.com/openmacapp/supermenu/issues"
+          data-i18n="feedback"
+          >反馈与建议 ↗</a
+        >
+      </section>
+    </main>
+    <footer class="wrap">
+      <span>SuperMenu</span
+      ><span data-i18n="footerNote">为 macOS 的日常文件操作而做。</span
+      ><a href="https://github.com/openmacapp/supermenu/blob/master/LICENSE"
+        >GNU GPL v2 ↗</a
+      >
+    </footer>
+  </body>
+</html>
