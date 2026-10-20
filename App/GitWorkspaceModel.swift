@@ -11,9 +11,6 @@ final class GitWorkspaceModel: ObservableObject {
     @Published var graph = CommitGraph.empty
     @Published var selection: Set<String> = []
     @Published var snapshot: RepositorySnapshot?
-    @Published var files: [FileChange] = []
-    @Published var diff = ""
-    @Published var selectedFile: String?
     @Published var operation: InterruptedOperation?
     @Published var conflicts: [String] = []
     @Published var busy = false
@@ -21,7 +18,6 @@ final class GitWorkspaceModel: ObservableObject {
     @Published var plan: HistoryPlan?
     @Published var hasMore = false
     private var limit = 200
-    private var detailRequest = UUID()
 
     init(workspace: GitWorkspace, l10n: L10n) {
         self.workspace = workspace
@@ -52,32 +48,9 @@ final class GitWorkspaceModel: ObservableObject {
         graph = GraphLayout.layout(commits)
         hasMore = page.nextSkip != nil
         selection.formIntersection(Set(commits.map(\.id)))
-        await loadDetails()
-    }
-
-    func loadDetails() async {
-        let request = UUID()
-        detailRequest = request
-        files = []
-        diff = ""
-        selectedFile = nil
-        guard let commit = selectedCommit else { return }
-        do {
-            let changes = try await workspace.files(commit: commit.id)
-            guard detailRequest == request else { return }
-            files = changes
-            if let path = changes.first?.path { await loadDiff(path: path) }
-        } catch { if detailRequest == request { report(error) } }
-    }
-
-    func loadDiff(path: String) async {
-        guard let commit = selectedCommit else { return }
-        selectedFile = path
-        do {
-            let result = try await workspace.diff(commit: commit.id, path: path)
-            guard selectedCommit?.id == commit.id, selectedFile == path else { return }
-            diff = result
-        } catch { report(error) }
+        if selection.isEmpty, let first = commits.first {
+            selection = [commits.first { $0.id == snapshot?.head }?.id ?? first.id]
+        }
     }
 
     func prepare(_ action: HistoryAction, selection override: Set<String>? = nil) async {
@@ -104,6 +77,8 @@ final class GitWorkspaceModel: ObservableObject {
     private func mutate(_ action: () async throws -> Void) async {
         guard !busy else { return }
         busy = true
+        await GitBadgeService.shared.beginMutation()
+        defer { GitBadgeService.shared.endMutation() }
         error = nil
         do { try await action() } catch { report(error) }
         do { try await reload() } catch { report(error) }

@@ -14,7 +14,7 @@
 "status.disabled" = "尚未启用";
 "finder.settings" = "打开访达扩展设置";
 "finder.heading" = "在访达里右键";
-"finder.explanation" = "启用后，选中文件或在窗口空白处右键，菜单出现在「超级右键」里。各项操作按用途分组。菜单栏图标现在就能对访达里选中的文件做同样的事，系统会先询问是否允许控制访达。";
+"finder.explanation" = "启用后，在访达里右键文件、文件夹或窗口空白处，从「超级右键」中选择文件操作。菜单栏只提供打开 Git 仓库、设置、关于和退出入口。";
 "features.heading" = "功能";
 "features.paths" = "复制绝对路径、相对路径和终端路径。相对路径默认相对 Git 仓库根，没有仓库时相对当前访达文件夹。";
 "features.apps" = "用 Visual Studio Code、GoLand、Cursor、WorkBuddy 打开选中的文件或当前文件夹。没装的会显示为未安装。";
@@ -59,8 +59,6 @@
 "send.copy" = "复制到%@";
 "send.move" = "移动到%@";
 "file.untitled" = "未命名";
-"error.finderQuery" = "无法查询访达";
-"error.finderPermission" = "访达没有响应。请在系统设置的自动化里允许超级右键控制访达。";
 "error.template" = "找不到要新建的文件类型";
 "error.creationFolder" = "没有可以新建文件的文件夹";
 "error.noSelection" = "没有选中文件";
@@ -138,3 +136,34 @@
 "about.licenses" = "开源许可";
 "git.openRepository" = "打开仓库…";
 "git.error.rangeTooLarge" = "操作涉及超过 10,000 条提交。请选择较小范围，以便完整核对所有受影响提交。";
+
+// Compact history and per-file diff browser
+"git.graph" = "提交图";
+"git.author" = "作者";
+"git.date" = "日期";
+"git.changedFiles" = "改动文件（%d）";
+"git.filterFiles" = "搜索文件…";
+"git.noChangedFiles" = "没有改动文件";
+"git.noMatchingFiles" = "没有匹配的文件";
+"git.selectFile" = "选择文件查看改动";
+"git.loadingDiff" = "正在加载 diff…";
+"git.binaryDiff" = "二进制文件发生改动，无法显示文本差异。";
+"git.noTextChanges" = "没有文本改动，请查看文件元数据。";
+"git.diffLimited" = "预览上限为 512 KiB 或 10,000 行，剩余内容未加载。";
+"git.previewCommit" = "预览提交";
+"git.firstParent" = "与第一父提交比较";
+"git.error.diff" = "无法加载文件差异，请刷新后重试。";
+"git.commitDetails" = "提交详情";
+"git.largeFileDiff" = "此文件某一版本超过 8 MiB，未加载文本差异。";
+"git.error.fileListLimit" = "变更文件清单超过预览上限，请选择更小的比较范围。";
+"git.error.diffEncoding" = "差异包含无法按 UTF-8 显示的文件名或文本编码。";
+"git.error.diffTimeout" = "读取差异超过 10 秒，已停止。";
+
+"badges.title" = "Git 状态角标";
+"badges.enabled" = "在 Finder 显示 Git 状态";
+"badges.note" = "需要保持 SuperMenu 运行。修改、未跟踪和冲突项目显示角标；干净或状态不可用时不显示。状态仅缓存在内存中。";
+"badges.diagnostics" = "缓存：%@ KiB · 读取失败：%@";
+"badges.modified" = "已修改";
+"badges.untracked" = "未跟踪";
+"badges.conflict" = "存在冲突";
+"badges.unavailable" = "角标服务不可用，请重启 SuperMenu 后重试。";

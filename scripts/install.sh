@@ -11,7 +11,13 @@ if [[ ! -d "$APP" ]]; then
   exit 1
 fi
 
-osascript -e 'tell application id "org.openmacapp.supermenu" to quit' >/dev/null 2>&1 || true
+# Read the installed identity so upgrades can also quit a renamed application.
+if [[ -f "$DEST/Contents/Info.plist" ]]; then
+  INSTALLED_ID=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$DEST/Contents/Info.plist")
+  if [[ "$INSTALLED_ID" =~ ^[A-Za-z0-9.-]+$ ]]; then
+    osascript -e "tell application id \"$INSTALLED_ID\" to quit" >/dev/null 2>&1 || true
+  fi
+fi
 sleep 0.4
 rm -rf "$DEST"
 mkdir -p "$HOME/Applications"

@@ -123,6 +123,9 @@ struct SettingsRootView: View {
 
 private struct EnablePage: View {
     @ObservedObject var model: SettingsModel
+    @State private var badgeBytes = 0
+    @State private var badgeFailures = 0
+    @State private var badgesRunning = false
 
     var body: some View {
         Form {
@@ -167,6 +170,17 @@ private struct EnablePage: View {
                 Text(model.l10n.text("finder.explanation"))
             }
 
+            Section(model.l10n.text("badges.title")) {
+                Toggle(model.l10n.text("badges.enabled"), isOn: model.binding(\.gitBadgesEnabled))
+                Text(model.l10n.text("badges.note")).foregroundStyle(.secondary)
+                Text(badgesRunning ? model.l10n.text("badges.diagnostics", String(badgeBytes / 1024), String(badgeFailures)) : model.l10n.text("badges.unavailable"))
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            .onAppear { updateBadgeDiagnostics() }
+            .onReceive(Timer.publish(every: 3, on: .main, in: .common).autoconnect()) { _ in
+                updateBadgeDiagnostics()
+            }
+
             Section(model.l10n.text("features.heading")) {
                 Text(model.l10n.text("features.paths"))
                 Text(model.l10n.text("features.apps"))
@@ -175,6 +189,13 @@ private struct EnablePage: View {
         }
         .formStyle(.grouped)
         .padding()
+    }
+
+    private func updateBadgeDiagnostics() {
+        let diagnostics = GitBadgeService.shared.diagnostics()
+        badgeBytes = diagnostics.bytes
+        badgeFailures = diagnostics.failures
+        badgesRunning = diagnostics.running
     }
 
     private var language: Binding<AppLanguage> {

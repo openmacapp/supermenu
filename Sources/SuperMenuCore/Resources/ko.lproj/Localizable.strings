@@ -14,7 +14,7 @@
 "status.disabled" = "활성화되지 않음";
 "finder.settings" = "Finder 확장 프로그램 설정 열기";
 "finder.heading" = "Finder에서 오른쪽 클릭";
-"finder.explanation" = "활성화한 후 Finder에서 파일이나 창의 빈 공간을 오른쪽 클릭하면 SuperMenu가 표시됩니다. 작업은 이 하위 메뉴에서 용도별로 그룹화됩니다. 메뉴 막대 아이콘으로도 Finder에서 선택한 파일을 작업할 수 있으며, 처음에는 Finder 제어 권한을 요청합니다.";
+"finder.explanation" = "활성화한 후 Finder에서 파일, 폴더 또는 빈 공간을 오른쪽 클릭하고 SuperMenu에서 파일 작업을 선택하세요. 메뉴 막대에는 Git 저장소 열기, 설정, 앱 정보 및 종료가 있습니다.";
 "features.heading" = "기능";
 "features.paths" = "절대 경로, 상대 경로, 셸용 경로를 복사합니다. 상대 경로는 기본적으로 Git 저장소 루트를 기준으로 하며, 저장소 밖에서는 현재 Finder 폴더를 기준으로 합니다.";
 "features.apps" = "선택한 파일이나 현재 폴더를 Visual Studio Code, GoLand, Cursor, WorkBuddy로 엽니다. 설치되지 않은 앱은 미설치로 표시됩니다.";
@@ -59,8 +59,6 @@
 "send.copy" = "%@에 복사";
 "send.move" = "%@로 이동";
 "file.untitled" = "제목 없음";
-"error.finderQuery" = "Finder 선택 항목을 읽을 수 없습니다";
-"error.finderPermission" = "Finder가 응답하지 않습니다. 시스템 설정 → 개인정보 보호 및 보안 → 자동화에서 SuperMenu의 Finder 제어를 허용하세요.";
 "error.template" = "파일 템플릿을 찾을 수 없습니다.";
 "error.creationFolder" = "새 파일을 만들 폴더가 없습니다.";
 "error.noSelection" = "선택한 파일이 없습니다.";
@@ -138,3 +136,34 @@
 "about.licenses" = "오픈 소스 라이선스";
 "git.openRepository" = "저장소 열기…";
 "git.error.rangeTooLarge" = "영향받는 커밋이 10,000개를 초과합니다. 모두 확인할 수 있도록 범위를 줄이세요.";
+
+// Compact history and per-file diff browser
+"git.graph" = "그래프";
+"git.author" = "작성자";
+"git.date" = "날짜";
+"git.changedFiles" = "변경 파일 (%d)";
+"git.filterFiles" = "파일 검색…";
+"git.noChangedFiles" = "변경된 파일 없음";
+"git.noMatchingFiles" = "일치하는 파일 없음";
+"git.selectFile" = "변경 내용을 볼 파일을 선택하세요";
+"git.loadingDiff" = "차이 불러오는 중…";
+"git.binaryDiff" = "바이너리 파일이 변경되었습니다. 텍스트 차이를 표시할 수 없습니다.";
+"git.noTextChanges" = "텍스트 변경이 없습니다. 파일 메타데이터를 확인하세요.";
+"git.diffLimited" = "미리보기는 512 KiB 또는 10,000줄로 제한됩니다. 나머지는 불러오지 않았습니다.";
+"git.previewCommit" = "미리볼 커밋";
+"git.firstParent" = "첫 번째 부모 커밋과 비교";
+"git.error.diff" = "파일 차이를 불러올 수 없습니다. 새로 고친 후 다시 시도하세요.";
+"git.commitDetails" = "커밋 상세 정보";
+"git.largeFileDiff" = "파일의 한 버전이 8 MiB를 초과하여 텍스트 차이를 불러오지 않았습니다.";
+"git.error.fileListLimit" = "변경 파일 목록이 미리보기 한도를 초과했습니다. 비교 범위를 줄이세요.";
+"git.error.diffEncoding" = "UTF-8로 표시할 수 없는 파일 이름 또는 텍스트 인코딩이 포함되어 있습니다.";
+"git.error.diffTimeout" = "차이 읽기가 10초를 초과하여 중지되었습니다.";
+
+"badges.title" = "Git 상태 배지";
+"badges.enabled" = "Finder에 Git 상태 표시";
+"badges.note" = "SuperMenu가 실행 중이어야 합니다. 수정·미추적·충돌 항목에 배지를 표시합니다. 변경이 없거나 상태를 확인할 수 없으면 표시하지 않습니다. 상태는 메모리에만 저장합니다.";
+"badges.diagnostics" = "캐시: %@ KiB · 읽기 실패: %@";
+"badges.modified" = "수정됨";
+"badges.untracked" = "미추적";
+"badges.conflict" = "충돌";
+"badges.unavailable" = "배지 서비스를 사용할 수 없습니다. SuperMenu를 다시 시작하세요.";

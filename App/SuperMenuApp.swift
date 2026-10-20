@@ -42,6 +42,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        do { try GitBadgeService.shared.start(enabled: ConfigStore.load(from: ConfigStore.defaultURL()).gitBadgesEnabled) }
+        catch { /* The existing app remains usable if the badge service cannot bind. */ }
+        NotificationCenter.default.addObserver(forName: .superMenuConfigurationChanged, object: nil, queue: .main) { _ in
+            GitBadgeService.shared.setEnabled(ConfigStore.load(from: ConfigStore.defaultURL()).gitBadgesEnabled)
+        }
+        NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { _ in
+            GitBadgeService.shared.invalidateAll()
+        }
         NSApp.activate(ignoringOtherApps: true)
         for window in NSApp.windows where window.canBecomeKey {
             window.makeKeyAndOrderFront(nil)
@@ -56,6 +64,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    func applicationWillTerminate(_ notification: Notification) { GitBadgeService.shared.stop() }
+
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         false
     }
@@ -66,20 +76,13 @@ private struct MenuBarMenu: View {
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        let config = ConfigStore.load(from: ConfigStore.defaultURL())
-        let l10n = L10n(language: config.language)
-        let snapshot = FinderBridge.snapshot(localization: l10n)
-        let context = MenuContext(kind: .items, targetedFolder: snapshot.folder, selection: snapshot.selection)
-        let nodes = MenuBuilder.build(
-            context: context,
-            config: config,
-            installedBundleIDs: InstalledApps.bundleIDs(referencedBy: config)
-        )
-        if let error = snapshot.error {
-            Text(error)
-            Divider()
+        let l10n = model.l10n
+        Button {
+            NSApp.activate(ignoringOtherApps: true)
+            GitWindows.shared.chooseRepository()
+        } label: {
+            Label(l10n.text("git.openRepository"), systemImage: "arrow.triangle.branch")
         }
-        MenuNodeList(nodes: nodes, context: context, config: config)
         Divider()
         Button {
             NSApp.activate(ignoringOtherApps: true)
@@ -90,45 +93,6 @@ private struct MenuBarMenu: View {
         AboutButton(model: model)
         Button(l10n.text("app.quit")) {
             NSApp.terminate(nil)
-        }
-    }
-}
-
-private struct MenuNodeList: View {
-    let nodes: [MenuNode]
-    let context: MenuContext
-    let config: MenuConfig
-
-    var body: some View {
-        ForEach(nodes) { node in
-            switch node.kind {
-            case .separator:
-                Divider()
-            case .command(let command):
-                Button {
-                    CommandRunner.run(command, context: context, config: config, presentErrors: true)
-                } label: {
-                    nodeLabel(node)
-                }
-                .disabled(!node.isEnabled)
-            case .submenu(let children):
-                Menu {
-                    MenuNodeList(nodes: children, context: context, config: config)
-                } label: {
-                    nodeLabel(node)
-                }
-            }
-        }
-    }
-
-    private func nodeLabel(_ node: MenuNode) -> some View {
-        Label {
-            Text(node.title)
-        } icon: {
-            if let image = MenuIcons.image(for: node) {
-                Image(nsImage: image)
-                    .renderingMode(image.isTemplate ? .template : .original)
-            }
         }
     }
 }

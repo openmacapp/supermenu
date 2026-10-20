@@ -31,7 +31,7 @@ public struct HistoryPlan: Identifiable, Sendable {
     public let affected: [Commit]
     public let published: Set<String>
     public let snapshot: RepositorySnapshot
-    public let diff: String
+    public let comparisons: [GitComparison]
     public var message: String
     public var resetMode: HistoryReset = .soft
     public var entries: [ReplayEntry]

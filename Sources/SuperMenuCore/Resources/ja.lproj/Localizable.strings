@@ -14,7 +14,7 @@
 "status.disabled" = "未有効化";
 "finder.settings" = "Finder機能拡張の設定を開く";
 "finder.heading" = "Finderで右クリック";
-"finder.explanation" = "有効にすると、Finderでファイルやウインドウの空白部分を右クリックしたときに「SuperMenu」が表示されます。操作は用途別にグループ化されています。メニューバーのアイコンからも選択中のファイルを操作できます。初回はFinderの制御を許可する確認が表示されます。";
+"finder.explanation" = "有効にすると、Finderでファイル、フォルダ、または空白部分を右クリックして「SuperMenu」からファイル操作を選べます。メニューバーにはGitリポジトリを開く、設定、アプリ情報、終了の入口があります。";
 "features.heading" = "機能";
 "features.paths" = "絶対パス、相対パス、シェル用パスをコピーできます。相対パスの基準は通常Gitリポジトリのルートで、リポジトリ外では現在のFinderフォルダになります。";
 "features.apps" = "選択したファイルや現在のフォルダをVisual Studio Code、GoLand、Cursor、WorkBuddyで開けます。未インストールのアプリにはその状態を表示します。";
@@ -59,8 +59,6 @@
 "send.copy" = "%@にコピー";
 "send.move" = "%@に移動";
 "file.untitled" = "名称未設定";
-"error.finderQuery" = "Finderの選択項目を取得できません";
-"error.finderPermission" = "Finderが応答していません。システム設定の「プライバシーとセキュリティ」→「オートメーション」でSuperMenuによるFinderの制御を許可してください。";
 "error.template" = "ファイルのテンプレートが見つかりません。";
 "error.creationFolder" = "新しいファイルの作成先フォルダがありません。";
 "error.noSelection" = "ファイルが選択されていません。";
@@ -138,3 +136,34 @@
 "about.licenses" = "オープンソースライセンス";
 "git.openRepository" = "リポジトリを開く…";
 "git.error.rangeTooLarge" = "対象が10,000コミットを超えています。すべてを確認できるよう範囲を小さくしてください。";
+
+// Compact history and per-file diff browser
+"git.graph" = "グラフ";
+"git.author" = "作成者";
+"git.date" = "日付";
+"git.changedFiles" = "変更ファイル（%d）";
+"git.filterFiles" = "ファイルを検索…";
+"git.noChangedFiles" = "変更ファイルなし";
+"git.noMatchingFiles" = "一致するファイルなし";
+"git.selectFile" = "ファイルを選択して変更を表示";
+"git.loadingDiff" = "差分を読み込み中…";
+"git.binaryDiff" = "バイナリファイルの変更です。テキスト差分は表示できません。";
+"git.noTextChanges" = "テキストの変更なし。ファイル情報を確認してください。";
+"git.diffLimited" = "プレビューは 512 KiB または 10,000 行までです。残りは読み込まれていません。";
+"git.previewCommit" = "プレビューするコミット";
+"git.firstParent" = "第1親コミットと比較";
+"git.error.diff" = "差分を読み込めません。更新して再試行してください。";
+"git.commitDetails" = "コミットの詳細";
+"git.largeFileDiff" = "このファイルの一方の版が 8 MiB を超えています。テキスト差分は読み込まれません。";
+"git.error.fileListLimit" = "変更ファイル一覧がプレビューの上限を超えました。比較範囲を小さくしてください。";
+"git.error.diffEncoding" = "UTF-8で表示できないファイル名またはテキストが含まれています。";
+"git.error.diffTimeout" = "差分の読み取りが10秒を超えたため停止しました。";
+
+"badges.title" = "Git ステータスバッジ";
+"badges.enabled" = "Finder に Git ステータスを表示";
+"badges.note" = "SuperMenu の起動が必要です。変更・未追跡・競合にバッジを表示します。変更なし・取得不可では非表示です。状態はメモリのみに保存します。";
+"badges.diagnostics" = "キャッシュ: %@ KiB · 読み取り失敗: %@";
+"badges.modified" = "変更あり";
+"badges.untracked" = "未追跡";
+"badges.conflict" = "競合";
+"badges.unavailable" = "バッジサービスを利用できません。SuperMenu を再起動してください。";

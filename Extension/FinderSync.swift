@@ -5,11 +5,18 @@ import Foundation
 @objc(FinderSync)
 final class FinderSync: FIFinderSync {
     private let menuRenderer = MenuRenderer()
+    private lazy var badges = FinderBadges()
 
     override init() {
         super.init()
+        // Register images only after FIFinderSync creates its extension context.
+        _ = badges
         FIFinderSyncController.default().directoryURLs = [URL(fileURLWithPath: "/", isDirectory: true)]
     }
+
+    override func beginObservingDirectory(at url: URL) { badges.begin(url) }
+    override func endObservingDirectory(at url: URL) { badges.end(url) }
+    override func requestBadgeIdentifier(for url: URL) { badges.request(url) }
 
     override func menu(for menuKind: FIMenuKind) -> NSMenu? {
         guard menuKind != .toolbarItemMenu else { return nil }

@@ -37,7 +37,7 @@ Use the links at the top to switch README languages. Change the app language in 
 
 - Relative paths use the Git repository root by default, or the current Finder folder outside a repository. You can also configure preferred project roots.
 - Installed apps display their original icons; unavailable apps cannot be launched from the menu.
-- The menu bar can also act on your Finder selection. The app provides language, menu, Open With, path, and About settings.
+- The menu bar provides Open Repository, Settings, About and Quit. File actions live in the Finder context menu.
 
 ## Git history
 
@@ -46,6 +46,14 @@ Right-click a repository directory in Finder and choose **SuperMenu → Git Hist
 Every operation has a preview; repository changes invalidate it. A clean working tree is required. Nothing is automatically stashed, discarded or pushed. Merge commits are not rewritten and merge-revert mainlines are not guessed. Resolve conflicts in your editor, mark files resolved, then continue or abort. Remote warnings use locally known refs, not freshly fetched server state.
 
 Git execution and graph layout reuse MIT-licensed GitKit. Full licenses are available in About → Open-source licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
+
+## Finder Git status badges
+
+Keep SuperMenu running and enable this feature under **Enable → Git status badges**. Finder files and folders can show modified, untracked and conflict badges. Folders aggregate descendant changes; clean, ignored or unavailable status has no badge.
+
+Status stays in memory: no cache files in your project or `.git`, and no cached diffs or file contents. The host retains up to 24 MiB, with a 4 MiB per-repository and 16-repository limit; each extension instance has a 1 MiB state/communication budget. LRU eviction, expiry, bounded reads and memory-pressure handling limit resource use. These are data budgets, not whole-process RSS guarantees. Oversized results are omitted entirely, never published partially.
+
+macOS may send badge requests to only one Finder extension covering a directory. If context menus work but badges do not, check for competing Finder extensions. SuperMenu never disables or reorders other apps automatically. Settings shows cache usage and read-failure counts; diagnostic logs contain counts, not file paths or contents.
 
 <a id="installation"></a>
 
@@ -79,7 +87,7 @@ The build output is `dist/SuperMenu.app`, and the app is installed at `~/Applica
 2. Enable the SuperMenu extension in macOS System Settings, then return to the app and confirm the status is **Enabled**.
 3. Right-click a file, folder, or empty area in a Finder window and look for **SuperMenu**.
 
-The menu bar needs to read your current Finder selection. Allow SuperMenu to control Finder when prompted. If you previously denied access, change it in **System Settings → Privacy & Security → Automation**. Enabling the Finder extension and granting this automation permission are separate settings.
+Use Open Repository in the menu bar to explicitly choose a Git repository folder. The menu bar does not read the Finder selection and does not require automation permission to control Finder.
 
 System Services menus, permission prompts, and the system-displayed app name follow the macOS language. The app's language setting controls its settings interface and context menus.
 
@@ -88,6 +96,7 @@ System Services menus, permission prompts, and the system-displayed app name fol
 ```sh
 swift test                  # Core logic, config compatibility, four-language resources, and menu groups
 zsh scripts/check-host.sh   # Finder menu tag dispatch and command mapping after menu rebuilds
+zsh scripts/check-badges.sh # Git status, cache lifecycle, and signed sandbox IPC checks
 zsh scripts/build.sh        # Compile the app and extension; package icons and translations
 ```
 

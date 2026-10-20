@@ -64,7 +64,7 @@ const translations = {
       "Confirm that the Finder extension is enabled in the app, then reopen the Finder menu. The extension and system Services menu are separate. SuperMenu does not add a Finder toolbar button.",
     faq2Title: "Which permissions does it need?",
     faq2Answer:
-      "Enable the Finder extension in System Settings. The menu bar also needs permission to control Finder to read your selection. Manage it under Privacy & Security → Automation.",
+      "Enable the Finder extension in System Settings. The menu bar opens Git repositories and app settings; it does not read the Finder selection or require Finder automation permission.",
     faq3Title: "Can I change the language and menu actions?",
     faq3Answer:
       "Yes. Choose Chinese, Japanese, Korean, English, or System Default in Settings, and turn off unused actions. System Services, permission prompts, and the system app name still follow the macOS language.",
@@ -130,7 +130,7 @@ const translations = {
       "アプリでFinder機能拡張が有効になっていることを確認し、Finderのメニューを開き直してください。機能拡張とシステムのサービスメニューは別のものです。Finderツールバーへのボタン追加は行いません。",
     faq2Title: "必要なアクセス許可は？",
     faq2Answer:
-      "システム設定でFinder機能拡張を有効にします。メニューバーから選択項目を読むにはFinderの制御許可も必要です。「プライバシーとセキュリティ → オートメーション」で変更できます。",
+      "システム設定でFinder機能拡張を有効にします。メニューバーはGitリポジトリや設定を開く入口です。Finderの選択項目は読み取らず、オートメーション権限も不要です。",
     faq3Title: "言語やメニュー項目を変更できますか？",
     faq3Answer:
       "設定で中国語、日本語、韓国語、英語、システム設定に従う、から選択できます。不要な操作もオフにできます。システムのサービス、権限確認、アプリ名はmacOSの言語に従います。",
@@ -197,7 +197,7 @@ const translations = {
       "앱에서 Finder 확장이 활성화되어 있는지 확인한 후 Finder 메뉴를 다시 여세요. 확장 프로그램과 시스템 서비스 메뉴는 별개입니다. Finder 도구 막대에 추가 버튼을 만들지 않습니다.",
     faq2Title: "어떤 권한이 필요한가요?",
     faq2Answer:
-      "시스템 설정에서 Finder 확장을 활성화해야 합니다. 메뉴 막대에서 선택 항목을 읽으려면 Finder 제어 권한도 필요합니다. 개인정보 보호 및 보안 → 자동화에서 변경할 수 있습니다.",
+      "시스템 설정에서 Finder 확장을 활성화하세요. 메뉴 막대는 Git 저장소와 설정을 여는 진입점이며, Finder 선택 항목을 읽거나 자동화 권한을 요구하지 않습니다.",
     faq3Title: "언어와 메뉴 항목을 바꿀 수 있나요?",
     faq3Answer:
       "설정에서 중국어, 일본어, 한국어, 영어 또는 시스템 설정 따르기를 선택하고 쓰지 않는 작업을 끌 수 있습니다. 시스템 서비스, 권한 요청, 시스템 앱 이름은 macOS 언어를 따릅니다.",

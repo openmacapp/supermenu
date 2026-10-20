@@ -14,7 +14,7 @@
 "status.disabled" = "Not Enabled";
 "finder.settings" = "Open Finder Extension Settings";
 "finder.heading" = "Right-click in Finder";
-"finder.explanation" = "Once enabled, right-click a file or an empty area in Finder to find SuperMenu. Actions are grouped by task in the SuperMenu submenu. The menu bar icon also works with your Finder selection; macOS will first ask for permission to control Finder.";
+"finder.explanation" = "Once enabled, right-click a file or an empty area in Finder to find SuperMenu. Actions are grouped by task in the SuperMenu submenu. The menu bar provides access to Git repositories, settings, About and Quit.";
 "features.heading" = "Features";
 "features.paths" = "Copy absolute, relative, and shell-quoted paths. Relative paths use the Git root by default, or the current Finder folder outside a repository.";
 "features.apps" = "Open selected files or the current folder in Visual Studio Code, GoLand, Cursor, or WorkBuddy. Unavailable apps are marked as not installed.";
@@ -59,8 +59,6 @@
 "send.copy" = "Copy to %@";
 "send.move" = "Move to %@";
 "file.untitled" = "Untitled";
-"error.finderQuery" = "Unable to Read Finder Selection";
-"error.finderPermission" = "Finder is not responding. Allow SuperMenu to control Finder in System Settings → Privacy & Security → Automation.";
 "error.template" = "The file template could not be found.";
 "error.creationFolder" = "No folder is available for the new file.";
 "error.noSelection" = "No files are selected.";
@@ -138,3 +136,34 @@
 "about.licenses" = "Open-source licenses";
 "git.openRepository" = "Open Repository…";
 "git.error.rangeTooLarge" = "This operation affects more than 10,000 commits. Select a smaller range so every affected commit can be reviewed.";
+
+// Compact history and per-file diff browser
+"git.graph" = "Graph";
+"git.author" = "Author";
+"git.date" = "Date";
+"git.changedFiles" = "Changed files (%d)";
+"git.filterFiles" = "Filter files…";
+"git.noChangedFiles" = "No changed files";
+"git.noMatchingFiles" = "No matching files";
+"git.selectFile" = "Select a file to inspect its changes";
+"git.loadingDiff" = "Loading diff…";
+"git.binaryDiff" = "Binary file changed; text preview is unavailable.";
+"git.noTextChanges" = "No textual changes (check file metadata).";
+"git.diffLimited" = "Preview limited to 512 KiB or 10,000 lines. Remaining content is not loaded.";
+"git.previewCommit" = "Commit to preview";
+"git.firstParent" = "Compared with first parent";
+"git.error.diff" = "Unable to load the file diff. Refresh and try again.";
+"git.commitDetails" = "Commit details";
+"git.largeFileDiff" = "One side of this file exceeds 8 MiB. Text diff is not loaded.";
+"git.error.fileListLimit" = "The changed-file list exceeds the preview limit. Select a smaller comparison.";
+"git.error.diffEncoding" = "This diff contains a filename or text encoding that cannot be displayed as UTF-8.";
+"git.error.diffTimeout" = "Reading the diff exceeded 10 seconds and was stopped.";
+
+"badges.title" = "Git status badges";
+"badges.enabled" = "Show Git status in Finder";
+"badges.note" = "SuperMenu must remain running. Modified, untracked and conflicted items show badges; clean or unavailable status has no badge. Status is cached only in memory.";
+"badges.diagnostics" = "Cache: %@ KiB · Read failures: %@";
+"badges.modified" = "Modified";
+"badges.untracked" = "Untracked";
+"badges.conflict" = "Conflict";
+"badges.unavailable" = "Badge service unavailable; restart SuperMenu to retry.";

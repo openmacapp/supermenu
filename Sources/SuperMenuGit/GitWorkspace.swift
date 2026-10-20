@@ -42,10 +42,6 @@ public actor GitWorkspace {
         try await service.commitChanges(sha: commit)
     }
 
-    public func diff(commit: String, path: String) async throws -> String {
-        try await runner.runString(["show", "--format=", "--no-ext-diff", "--no-textconv", commit, "--", path])
-    }
-
     public func operation() async throws -> InterruptedOperation? {
         for (marker, operation) in [("rebase-merge", InterruptedOperation.rebase), ("rebase-apply", .rebase),
                                     ("REVERT_HEAD", .revert), ("CHERRY_PICK_HEAD", .cherryPick), ("MERGE_HEAD", .merge)] {
@@ -81,7 +77,7 @@ public actor GitWorkspace {
         var affected = selected
         var base: String?
         var entries: [ReplayEntry] = []
-        var comparison = ""
+        var comparisons: [GitComparison] = []
 
         switch action {
         case .squash, .rebase:
@@ -96,7 +92,7 @@ public actor GitWorkspace {
             guard affected.allSatisfy({ !$0.isMerge }) else { throw WorkspaceFailure("git.error.merge") }
             base = affected.first?.parents.first
             entries = affected.map(ReplayEntry.init)
-            comparison = try await treeDiff(from: base, to: before.head)
+            comparisons = [GitComparison(from: base, to: before.head)]
         case .revert:
             guard selected.allSatisfy({ !$0.isMerge }) else { throw WorkspaceFailure("git.error.merge") }
             // Topological order makes dependent commits undo newest first.
@@ -105,9 +101,9 @@ public actor GitWorkspace {
             guard ordered.count == ids.count else { throw WorkspaceFailure("git.error.ancestry") }
             let byID = Dictionary(uniqueKeysWithValues: selected.map { ($0.id, $0) })
             affected = ordered.compactMap { byID[$0] }
-            for commit in affected {
-                comparison += "\n\(commit.shortID) \(commit.summary)\n"
-                comparison += try await treeDiff(from: commit.parents.first, to: commit.id, reverse: true)
+            comparisons = affected.map {
+                GitComparison(from: $0.parents.first, to: $0.id, reversed: true,
+                              title: $0.shortID + "  " + $0.summary)
             }
         case .reset:
             guard selected.count == 1, let target = selected.first else { throw WorkspaceFailure("git.error.selectOne") }
@@ -116,13 +112,13 @@ public actor GitWorkspace {
             let removed = try await service.log(skip: 0, limit: 10_000, revisions: ["\(target.id)..\(before.head)"])
             guard removed.nextSkip == nil else { throw WorkspaceFailure("git.error.rangeTooLarge") }
             affected = removed.commits
-            comparison = try await treeDiff(from: before.head, to: target.id)
+            comparisons = [GitComparison(from: before.head, to: target.id)]
         }
         let remoteIDs = Set(try await runner.runString(["rev-list", "--remotes"]).split(separator: "\n").map(String.init))
         guard try await snapshot() == before else { throw WorkspaceFailure("git.error.stale") }
         return HistoryPlan(action: action, selected: selected, affected: affected,
                            published: Set(affected.map(\.id)).intersection(remoteIDs), snapshot: before,
-                           diff: comparison, message: affected.filter { ids.contains($0.id) }.map { ReplayEntry($0).message }.joined(separator: "\n\n"),
+                           comparisons: comparisons, message: affected.filter { ids.contains($0.id) }.map { ReplayEntry($0).message }.joined(separator: "\n\n"),
                            entries: entries, base: base)
     }
 
@@ -176,10 +172,4 @@ public actor GitWorkspace {
         return URL(fileURLWithPath: value, relativeTo: root).standardizedFileURL
     }
 
-    private func treeDiff(from base: String?, to commit: String, reverse: Bool = false) async throws -> String {
-        if let base {
-            return try await runner.runString(["diff", "--no-ext-diff", "--no-textconv"] + (reverse ? ["-R"] : []) + [base, commit, "--"])
-        }
-        return try await runner.runString(["show", "--format=", "--root", "--no-ext-diff", "--no-textconv"] + (reverse ? ["-R"] : []) + [commit, "--"])
-    }
 }

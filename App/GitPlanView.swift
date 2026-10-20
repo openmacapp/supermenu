@@ -44,7 +44,8 @@ struct GitPlanView: View {
                 Text(model.text("git.resetEffect." + plan.resetMode.rawValue)).font(.callout)
             }
             Text(model.text("git.previewDiff")).font(.headline)
-            GitDiffText(text: plan.diff).frame(minHeight: 120, maxHeight: .infinity)
+            GitChangesView(workspace: model.workspace, comparisons: plan.comparisons, l10n: model.l10n)
+                .frame(minHeight: 200, maxHeight: .infinity)
             if !plan.published.isEmpty, plan.action != .revert {
                 Label(model.l10n.text("git.published", plan.published.count), systemImage: "exclamationmark.triangle")
                     .foregroundStyle(.orange).font(.callout)
@@ -66,7 +67,7 @@ struct GitPlanView: View {
                           (plan.action == .squash && plan.message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty))
             }
         }
-        .padding(24).frame(width: 780, height: 720)
+        .padding(24).frame(width: 960, height: 760)
         .onChange(of: plan.resetMode) { _, _ in acknowledged = false }
     }
 

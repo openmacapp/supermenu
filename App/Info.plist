@@ -33,8 +33,6 @@
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
-	<key>NSAppleEventsUsageDescription</key>
-	<string>SuperMenu needs to read your Finder selection to copy paths and open files in an editor.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSPrincipalClass</key>

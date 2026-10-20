@@ -51,7 +51,7 @@ struct AboutView: View {
         .environment(\.locale, l10n.locale)
         .sheet(isPresented: $showLicenses) {
             VStack {
-                GitDiffText(text: licenseText).frame(width: 700, height: 500)
+                GitDiffText(text: licenseText, highlightDiff: false).frame(width: 700, height: 500)
                 Button(l10n.text("git.cancel")) { showLicenses = false }.keyboardShortcut(.cancelAction)
             }.padding()
         }
