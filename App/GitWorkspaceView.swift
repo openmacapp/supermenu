@@ -18,9 +18,13 @@ struct GitWorkspaceView: View {
                 }.padding(12).background(.orange.opacity(0.08))
             }
             if model.operation != nil { conflictPanel }
-            VSplitView {
-                history.frame(minHeight: 170, idealHeight: 330)
-                details.frame(minHeight: 220, idealHeight: 300)
+            HSplitView {
+                GitReferencesSidebar(model: model)
+                    .frame(minWidth: 150, idealWidth: 185, maxWidth: 280)
+                VSplitView {
+                    history.frame(minHeight: 170, idealHeight: 330)
+                    details.frame(minHeight: 220, idealHeight: 300)
+                }.frame(minWidth: 680)
             }
             HStack {
                 Text(model.text("git.selectionHint"))
@@ -48,6 +52,7 @@ struct GitWorkspaceView: View {
             Image(systemName: "arrow.triangle.branch")
             Text(model.snapshot?.branch.isEmpty == false ? model.snapshot!.branch : model.text("git.detached"))
                 .font(.headline)
+                .help(model.text("git.checkedOutBranch"))
             Spacer()
             if model.busy { ProgressView().controlSize(.small) }
             Button(model.text("git.squash")) { Task { await model.prepare(.squash) } }

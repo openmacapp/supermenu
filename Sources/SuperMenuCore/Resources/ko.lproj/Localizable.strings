@@ -167,3 +167,27 @@
 "badges.untracked" = "미추적";
 "badges.conflict" = "충돌";
 "badges.unavailable" = "배지 서비스를 사용할 수 없습니다. SuperMenu를 다시 시작하세요.";
+
+// Git history browsing
+"git.browseHistory" = "기록 탐색";
+"git.filterReferences" = "브랜치 또는 태그 검색";
+"git.allReferences" = "모든 브랜치 및 태그";
+"git.localBranches" = "로컬 브랜치";
+"git.remoteBranches" = "원격 브랜치";
+"git.tags" = "태그";
+"git.checkedOutBranch" = "현재 체크아웃된 브랜치";
+"git.browseOnly" = "선택은 기록만 필터링합니다. 변경 작업은 현재 체크아웃된 브랜치에 적용됩니다.";
+"git.error.referenceMissing" = "브랜치 또는 태그가 없거나 커밋을 가리키지 않습니다. 다른 기록 필터를 선택하세요.";
+"git.error.referencesLimited" = "브랜치 및 태그 목록이 읽기 제한을 초과하여 모두 표시할 수 없습니다.";
+"git.fileView" = "변경 파일 보기";
+"git.treeView" = "디렉터리 트리";
+"git.flatView" = "파일 목록";
+"git.expandFolders" = "모든 폴더 펼치기";
+"git.collapseFolders" = "모든 폴더 접기";
+"git.previousFile" = "이전 파일";
+"git.nextFile" = "다음 파일";
+"git.changeBlocks" = "변경 블록";
+"git.previousHunk" = "이전 변경 블록";
+"git.nextHunk" = "다음 변경 블록";
+"git.folderExpanded" = "펼쳐짐";
+"git.folderCollapsed" = "접힘";

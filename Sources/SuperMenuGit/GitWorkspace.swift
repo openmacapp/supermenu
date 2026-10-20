@@ -21,7 +21,17 @@ public actor GitWorkspace {
         return GitWorkspace(service: service)
     }
 
-    public func history(limit: Int = 200) async throws -> CommitPage {
+    public func history(limit: Int = 200, reference: String? = nil) async throws -> CommitPage {
+        if let reference {
+            // Accept an exact enumerated ref, never revision expressions/options.
+            guard try await references().contains(where: { $0.id == reference }) else {
+                throw WorkspaceFailure("git.error.referenceMissing")
+            }
+            let resolved = try await runner.runRaw(["rev-parse", "--verify", "--end-of-options", reference + "^{commit}"])
+            guard resolved.succeeded else { throw WorkspaceFailure("git.error.referenceMissing") }
+            let sha = resolved.stdoutString.trimmingCharacters(in: .whitespacesAndNewlines)
+            return try await service.log(skip: 0, limit: limit, revisions: [sha])
+        }
         let hasHead = try await runner.runRaw(["rev-parse", "--verify", "HEAD"])
         // An unborn branch can still have remote history.
         return try await service.log(skip: 0, limit: limit, revisions: hasHead.succeeded ? ["--all", "HEAD"] : ["--all"])

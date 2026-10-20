@@ -17,6 +17,8 @@ final class GitWorkspaceModel: ObservableObject {
     @Published var error: String?
     @Published var plan: HistoryPlan?
     @Published var hasMore = false
+    @Published private(set) var references: [Ref] = []
+    @Published private(set) var selectedReference: String?
     private var limit = 200
 
     init(workspace: GitWorkspace, l10n: L10n) {
@@ -34,16 +36,39 @@ final class GitWorkspaceModel: ObservableObject {
     func refresh(more: Bool = false) async {
         guard !busy else { return }
         busy = true
+        error = nil
         if more { limit += 200 }
         do { try await reload() } catch { report(error) }
         busy = false
+    }
+
+    func browse(reference: String?) async {
+        guard !busy, selectedReference != reference else { return }
+        selectedReference = reference
+        limit = 200
+        selection = []
+        commits = []
+        graph = .empty
+        hasMore = false
+        await refresh()
     }
 
     private func reload() async throws {
         operation = try await workspace.operation()
         conflicts = try await workspace.conflicts()
         snapshot = try await workspace.snapshot()
-        let page = try await workspace.history(limit: limit)
+        references = try await workspace.references()
+        let page: CommitPage
+        do {
+            page = try await workspace.history(limit: limit, reference: selectedReference)
+        } catch {
+            // A deleted filter must not leave stale history looking current.
+            commits = []
+            graph = .empty
+            selection = []
+            hasMore = false
+            throw error
+        }
         commits = page.commits
         graph = GraphLayout.layout(commits)
         hasMore = page.nextSkip != nil

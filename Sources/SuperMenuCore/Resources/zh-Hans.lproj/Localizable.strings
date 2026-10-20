@@ -167,3 +167,27 @@
 "badges.untracked" = "未跟踪";
 "badges.conflict" = "存在冲突";
 "badges.unavailable" = "角标服务不可用，请重启 SuperMenu 后重试。";
+
+// Git history browsing
+"git.browseHistory" = "浏览提交历史";
+"git.filterReferences" = "搜索分支或标签";
+"git.allReferences" = "全部分支与标签";
+"git.localBranches" = "本地分支";
+"git.remoteBranches" = "远程分支";
+"git.tags" = "标签";
+"git.checkedOutBranch" = "当前检出的分支";
+"git.browseOnly" = "选择分支只筛选历史。修改操作仍针对当前检出的分支。";
+"git.error.referenceMissing" = "该分支或标签已不存在，或未指向提交。请选择其他范围。";
+"git.error.referencesLimited" = "分支与标签数量超出读取上限，无法完整显示。";
+"git.fileView" = "改动文件视图";
+"git.treeView" = "目录树";
+"git.flatView" = "文件列表";
+"git.expandFolders" = "展开所有目录";
+"git.collapseFolders" = "折叠所有目录";
+"git.previousFile" = "上一个文件";
+"git.nextFile" = "下一个文件";
+"git.changeBlocks" = "改动块";
+"git.previousHunk" = "上一个改动块";
+"git.nextHunk" = "下一个改动块";
+"git.folderExpanded" = "已展开";
+"git.folderCollapsed" = "已折叠";

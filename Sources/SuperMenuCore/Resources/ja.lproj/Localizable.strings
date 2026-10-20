@@ -167,3 +167,27 @@
 "badges.untracked" = "未追跡";
 "badges.conflict" = "競合";
 "badges.unavailable" = "バッジサービスを利用できません。SuperMenu を再起動してください。";
+
+// Git history browsing
+"git.browseHistory" = "履歴を表示";
+"git.filterReferences" = "ブランチ・タグを検索";
+"git.allReferences" = "すべてのブランチとタグ";
+"git.localBranches" = "ローカルブランチ";
+"git.remoteBranches" = "リモートブランチ";
+"git.tags" = "タグ";
+"git.checkedOutBranch" = "チェックアウト中のブランチ";
+"git.browseOnly" = "選択は履歴の絞り込みのみです。変更操作はチェックアウト中のブランチに適用されます。";
+"git.error.referenceMissing" = "ブランチやタグが存在しないか、コミットを指していません。別の表示範囲を選択してください。";
+"git.error.referencesLimited" = "ブランチとタグの一覧が読み込み上限を超えているため、すべて表示できません。";
+"git.fileView" = "変更ファイルの表示";
+"git.treeView" = "ディレクトリツリー";
+"git.flatView" = "ファイル一覧";
+"git.expandFolders" = "すべてのフォルダを展開";
+"git.collapseFolders" = "すべてのフォルダを折りたたむ";
+"git.previousFile" = "前のファイル";
+"git.nextFile" = "次のファイル";
+"git.changeBlocks" = "変更箇所";
+"git.previousHunk" = "前の変更箇所";
+"git.nextHunk" = "次の変更箇所";
+"git.folderExpanded" = "展開済み";
+"git.folderCollapsed" = "折りたたみ済み";

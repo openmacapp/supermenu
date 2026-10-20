@@ -11,6 +11,11 @@ struct GitChangesView: View {
     @State private var files: [GitChangedFile] = []
     @State private var selectedPath: String?
     @State private var query = ""
+    @State private var tree = GitFileTree(files: [])
+    @State private var collapsed: Set<String> = []
+    @State private var treeMode = true
+    @State private var hunkIndex = -1
+    @State private var hunkCount = 0
     @State private var preview: GitDiffPreview?
     @State private var loadingFiles = false
     @State private var loadingDiff = false
@@ -23,6 +28,13 @@ struct GitChangesView: View {
     private var visibleFiles: [GitChangedFile] {
         query.isEmpty ? files : files.filter { $0.path.localizedCaseInsensitiveContains(query) ||
             ($0.oldPath?.localizedCaseInsensitiveContains(query) ?? false) }
+    }
+    private var treeRows: [GitFileTree.Row] { tree.rows(collapsed: collapsed, query: query) }
+    private var navigationFiles: [GitChangedFile] { treeMode ? treeRows.compactMap(\.file) : visibleFiles }
+    private var fileSelection: Binding<String?> {
+        Binding(get: { selectedPath }, set: { path in
+            if let path, files.contains(where: { $0.path == path }) { selectedPath = path }
+        })
     }
     private var requestID: String { (comparison?.id ?? "") + "\0" + (selectedPath ?? "") }
 
@@ -54,17 +66,50 @@ struct GitChangesView: View {
             }.padding(8)
             TextField(l10n.text("git.filterFiles"), text: $query)
                 .textFieldStyle(.roundedBorder).padding(.horizontal, 8).padding(.bottom, 6)
-            List(visibleFiles, selection: $selectedPath) { file in
-                HStack(spacing: 6) {
-                    Text(file.status).font(.caption.monospaced().bold())
-                        .foregroundStyle(statusColor(file.status)).frame(width: 14)
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text((file.path as NSString).lastPathComponent).font(.system(size: 12))
-                        let directory = (file.path as NSString).deletingLastPathComponent
-                        if !directory.isEmpty { Text(directory).font(.system(size: 10)).foregroundStyle(.secondary) }
-                    }.lineLimit(1).truncationMode(.middle)
-                }.tag(file.path).help(file.oldPath.map { $0 + " → " + file.path } ?? file.path)
-            }.listStyle(.plain)
+            HStack(spacing: 6) {
+                Picker(l10n.text("git.fileView"), selection: $treeMode) {
+                    Image(systemName: "list.bullet.indent").help(l10n.text("git.treeView"))
+                        .accessibilityLabel(l10n.text("git.treeView")).tag(true)
+                    Image(systemName: "list.bullet").help(l10n.text("git.flatView"))
+                        .accessibilityLabel(l10n.text("git.flatView")).tag(false)
+                }.pickerStyle(.segmented).labelsHidden().frame(width: 70)
+                Spacer()
+                if treeMode {
+                    Button { collapsed = [] } label: { Image(systemName: "arrow.down.right.and.arrow.up.left") }
+                        .help(l10n.text("git.expandFolders")).accessibilityLabel(l10n.text("git.expandFolders"))
+                        .disabled(!query.isEmpty || tree.directories.isEmpty)
+                    Button { collapsed = tree.directories } label: { Image(systemName: "arrow.up.left.and.arrow.down.right") }
+                        .help(l10n.text("git.collapseFolders")).accessibilityLabel(l10n.text("git.collapseFolders"))
+                        .disabled(!query.isEmpty || tree.directories.isEmpty)
+                }
+            }.controlSize(.small).buttonStyle(.borderless).padding(.horizontal, 8).padding(.bottom, 5)
+            List(selection: fileSelection) {
+                if treeMode {
+                    ForEach(treeRows) { row in
+                        if let file = row.file {
+                            fileRow(file, showDirectory: false)
+                                .padding(.leading, CGFloat(row.depth) * 12).tag(file.path)
+                        } else {
+                            Button {
+                                if !collapsed.insert(row.path).inserted { collapsed.remove(row.path) }
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Image(systemName: !query.isEmpty || !collapsed.contains(row.path) ? "chevron.down" : "chevron.right")
+                                        .font(.system(size: 9)).frame(width: 10)
+                                    Image(systemName: "folder").foregroundStyle(.secondary)
+                                    Text(row.name).lineLimit(1).truncationMode(.middle)
+                                    Spacer(minLength: 0)
+                                }.contentShape(Rectangle())
+                            }.buttonStyle(.plain).disabled(!query.isEmpty)
+                                .padding(.leading, CGFloat(row.depth) * 12).help(row.path)
+                                .accessibilityValue(!query.isEmpty || !collapsed.contains(row.path)
+                                    ? l10n.text("git.folderExpanded") : l10n.text("git.folderCollapsed"))
+                        }
+                    }
+                } else {
+                    ForEach(visibleFiles) { file in fileRow(file, showDirectory: true).tag(file.path) }
+                }
+            }.listStyle(.plain).font(.system(size: 12)).environment(\.defaultMinListRowHeight, 22)
                 .overlay {
                     if !loadingFiles && visibleFiles.isEmpty {
                         Text(l10n.text(query.isEmpty ? "git.noChangedFiles" : "git.noMatchingFiles"))
@@ -72,6 +117,55 @@ struct GitChangesView: View {
                     }
                 }
         }
+    }
+
+    private func fileRow(_ file: GitChangedFile, showDirectory: Bool) -> some View {
+        HStack(spacing: 6) {
+            Text(file.status).font(.caption.monospaced().bold())
+                .foregroundStyle(statusColor(file.status)).frame(width: 14)
+            VStack(alignment: .leading, spacing: 1) {
+                Text((file.path as NSString).lastPathComponent)
+                let directory = (file.path as NSString).deletingLastPathComponent
+                if showDirectory && !directory.isEmpty {
+                    Text(directory).font(.system(size: 10)).foregroundStyle(.secondary)
+                }
+            }.lineLimit(1).truncationMode(.middle)
+        }.help(file.oldPath.map { $0 + " → " + file.path } ?? file.path)
+    }
+
+    private func moveFile(_ offset: Int) {
+        let candidates = navigationFiles
+        let index = candidates.firstIndex { $0.path == selectedPath }
+        let next = (index ?? (offset > 0 ? -1 : candidates.count)) + offset
+        guard candidates.indices.contains(next) else { return }
+        selectedPath = candidates[next].path
+    }
+
+    private var navigation: some View {
+        let candidates = navigationFiles
+        let index = candidates.firstIndex { $0.path == selectedPath }
+        return HStack(spacing: 6) {
+            Button { moveFile(-1) } label: { Image(systemName: "chevron.left") }
+                .disabled(candidates.isEmpty || index == 0)
+                .keyboardShortcut(.upArrow, modifiers: [.command, .option])
+                .help(l10n.text("git.previousFile") + " (⌥⌘↑)").accessibilityLabel(l10n.text("git.previousFile"))
+            Button { moveFile(1) } label: { Image(systemName: "chevron.right") }
+                .disabled(candidates.isEmpty || index == candidates.count - 1)
+                .keyboardShortcut(.downArrow, modifiers: [.command, .option])
+                .help(l10n.text("git.nextFile") + " (⌥⌘↓)").accessibilityLabel(l10n.text("git.nextFile"))
+            Divider().frame(height: 14)
+            Text("\(max(0, hunkIndex + 1))/\(hunkCount)").font(.caption.monospacedDigit())
+                .accessibilityLabel(l10n.text("git.changeBlocks"))
+                .accessibilityValue("\(max(0, hunkIndex + 1))/\(hunkCount)")
+            Button { hunkIndex -= 1 } label: { Image(systemName: "chevron.up") }
+                .disabled(loadingDiff || hunkIndex <= 0)
+                .keyboardShortcut("[", modifiers: [.command, .option])
+                .help(l10n.text("git.previousHunk") + " (⌥⌘[)").accessibilityLabel(l10n.text("git.previousHunk"))
+            Button { hunkIndex += 1 } label: { Image(systemName: "chevron.down") }
+                .disabled(loadingDiff || hunkIndex + 1 >= hunkCount)
+                .keyboardShortcut("]", modifiers: [.command, .option])
+                .help(l10n.text("git.nextHunk") + " (⌥⌘])").accessibilityLabel(l10n.text("git.nextHunk"))
+        }.buttonStyle(.borderless)
     }
 
     private var patch: some View {
@@ -82,6 +176,7 @@ struct GitChangesView: View {
                     .font(.caption.monospaced()).lineLimit(1).truncationMode(.middle).textSelection(.enabled)
                 Spacer(minLength: 0)
                 if loadingDiff { ProgressView().controlSize(.mini) }
+                navigation
             }.padding(8)
             Divider()
             if let error {
@@ -99,7 +194,7 @@ struct GitChangesView: View {
                 } else if preview.text.isEmpty {
                     placeholder("git.noTextChanges", symbol: "doc")
                 } else {
-                    GitDiffText(text: preview.text, identity: requestID)
+                    GitDiffText(text: preview.text, identity: requestID, selectedHunk: hunkIndex)
                 }
             } else {
                 placeholder(loadingDiff ? "git.loadingDiff" : "git.selectFile", symbol: "text.alignleft")
@@ -125,6 +220,8 @@ struct GitChangesView: View {
 
     @MainActor private func loadFiles() async {
         files = []
+        tree = GitFileTree(files: [])
+        collapsed = []
         selectedPath = nil
         preview = nil
         query = ""
@@ -135,6 +232,7 @@ struct GitChangesView: View {
             let result = try await workspace.changedFiles(in: comparison)
             try Task.checkCancellation()
             files = result
+            tree = GitFileTree(files: result)
             selectedPath = result.first?.path
             loadingFiles = false
         } catch {
@@ -146,6 +244,8 @@ struct GitChangesView: View {
 
     @MainActor private func loadPatch() async {
         preview = nil
+        hunkIndex = -1
+        hunkCount = 0
         loadingDiff = false
         guard let comparison, let file = selectedFile else { return }
         loadingDiff = true
@@ -154,6 +254,7 @@ struct GitChangesView: View {
             let result = try await workspace.fileDiff(in: comparison, file: file)
             try Task.checkCancellation()
             preview = result
+            hunkCount = GitDiffText.numberOfHunks(in: result.text)
             loadingDiff = false
         } catch {
             guard !Task.isCancelled else { return }
@@ -169,12 +270,24 @@ struct GitDiffText: NSViewRepresentable {
     let text: String
     var identity = ""
     var highlightDiff = true
+    var selectedHunk = -1
+    private static let hunkPattern = try! NSRegularExpression(
+        pattern: #"^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@"#)
     @Environment(\.colorScheme) private var colorScheme
+
+    static func numberOfHunks(in text: String) -> Int {
+        // Git patch records use LF. A CR inside file content is not a new header.
+        text.components(separatedBy: "\n").reduce(0) { count, line in
+            count + (hunkPattern.firstMatch(in: line, range: NSRange(line.startIndex..., in: line)) == nil ? 0 : 1)
+        }
+    }
 
     final class Coordinator {
         var identity = ""
         var text = ""
         var scheme: ColorScheme?
+        var hunks: [NSRange] = []
+        var selectedHunk = -1
     }
     func makeCoordinator() -> Coordinator { Coordinator() }
 
@@ -199,36 +312,50 @@ struct GitDiffText: NSViewRepresentable {
     func updateNSView(_ scroll: NSScrollView, context: Context) {
         guard let view = scroll.documentView as? NSTextView else { return }
         let cache = context.coordinator
-        guard cache.text != text || cache.scheme != colorScheme || cache.identity != identity else { return }
-        let resetScroll = cache.identity != identity
-        cache.identity = identity
-        cache.text = text
-        cache.scheme = colorScheme
-        view.textStorage?.setAttributedString(highlighted())
-        if resetScroll {
-            view.scrollToBeginningOfDocument(nil)
-            scroll.contentView.scroll(to: .zero)
-            scroll.reflectScrolledClipView(scroll.contentView)
+        let changed = cache.text != text || cache.scheme != colorScheme || cache.identity != identity
+        if changed {
+            let resetScroll = cache.identity != identity
+            cache.identity = identity
+            cache.text = text
+            cache.scheme = colorScheme
+            cache.hunks = []
+            view.textStorage?.setAttributedString(highlighted(hunks: &cache.hunks))
+            if resetScroll {
+                cache.selectedHunk = -1
+                view.scrollToBeginningOfDocument(nil)
+                scroll.contentView.scroll(to: .zero)
+                scroll.reflectScrolledClipView(scroll.contentView)
+            }
+        }
+        if cache.selectedHunk != selectedHunk || changed {
+            cache.selectedHunk = selectedHunk
+            if cache.hunks.indices.contains(selectedHunk) {
+                let range = cache.hunks[selectedHunk]
+                view.setSelectedRange(range)
+                view.scrollRangeToVisible(range)
+            }
         }
     }
 
-    private func highlighted() -> NSAttributedString {
+    private func highlighted(hunks: inout [NSRange]) -> NSAttributedString {
         let output = NSMutableAttributedString()
         let font = NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
         if !highlightDiff {
             return NSAttributedString(string: text, attributes: [.font: font, .foregroundColor: NSColor.labelColor])
         }
-        let hunkPattern = try! NSRegularExpression(pattern: #"^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@"#)
         var oldLine = 0
         var newLine = 0
         var inHunk = false
         for line in text.components(separatedBy: "\n") {
+            let lineStart = output.length
+            var isHunkHeader = false
             var color = NSColor.labelColor
             var background = NSColor.clear
             var oldNumber = ""
             var newNumber = ""
             let range = NSRange(line.startIndex..., in: line)
-            if let match = hunkPattern.firstMatch(in: line, range: range) {
+            if let match = Self.hunkPattern.firstMatch(in: line, range: range) {
+                isHunkHeader = true
                 let value = line as NSString
                 oldLine = Int(value.substring(with: match.range(at: 1))) ?? 0
                 newLine = Int(value.substring(with: match.range(at: 2))) ?? 0
@@ -254,6 +381,9 @@ struct GitDiffText: NSViewRepresentable {
             }
             let gutter = String(repeating: " ", count: max(0, 5 - oldNumber.count)) + oldNumber + " "
                 + String(repeating: " ", count: max(0, 5 - newNumber.count)) + newNumber + "  │ "
+            if isHunkHeader {
+                hunks.append(NSRange(location: lineStart, length: gutter.utf16.count + line.utf16.count))
+            }
             output.append(NSAttributedString(string: gutter, attributes: [
                 .font: font, .foregroundColor: NSColor.secondaryLabelColor
             ]))

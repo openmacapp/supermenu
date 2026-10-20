@@ -167,3 +167,27 @@
 "badges.untracked" = "Untracked";
 "badges.conflict" = "Conflict";
 "badges.unavailable" = "Badge service unavailable; restart SuperMenu to retry.";
+
+// Git history browsing
+"git.browseHistory" = "Browse history";
+"git.filterReferences" = "Find branch or tag";
+"git.allReferences" = "All branches and tags";
+"git.localBranches" = "Local branches";
+"git.remoteBranches" = "Remote branches";
+"git.tags" = "Tags";
+"git.checkedOutBranch" = "Checked-out branch";
+"git.browseOnly" = "Selection filters history. Changes still apply to the checked-out branch.";
+"git.error.referenceMissing" = "This branch or tag is missing or does not point to a commit. Select another history filter.";
+"git.error.referencesLimited" = "The branch and tag list exceeds the read limit and cannot be displayed in full.";
+"git.fileView" = "Changed-file view";
+"git.treeView" = "Directory tree";
+"git.flatView" = "File list";
+"git.expandFolders" = "Expand all folders";
+"git.collapseFolders" = "Collapse all folders";
+"git.previousFile" = "Previous file";
+"git.nextFile" = "Next file";
+"git.changeBlocks" = "Change blocks";
+"git.previousHunk" = "Previous change block";
+"git.nextHunk" = "Next change block";
+"git.folderExpanded" = "Expanded";
+"git.folderCollapsed" = "Collapsed";
