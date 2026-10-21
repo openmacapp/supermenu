@@ -441,6 +441,116 @@ h3 {
   line-height: 1.95;
   margin-top: 12px;
 }
+.git-section {
+  border-top: 1px solid var(--line);
+}
+.git-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+}
+.git-illustration {
+  margin: 0;
+  min-width: 0;
+  background: #fffefa;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  overflow: hidden;
+}
+.git-example-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 600;
+}
+.git-example-header code {
+  color: var(--accent);
+}
+.git-example-history {
+  padding: 16px 22px;
+}
+.git-example-row {
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding-block: 12px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.git-example-row code {
+  font-size: 10px;
+  color: var(--muted);
+}
+.git-example-row code:first-child {
+  color: var(--accent);
+  background: var(--soft-accent);
+  border-radius: 4px;
+  padding: 3px 6px;
+}
+.git-example-diff {
+  border-top: 1px solid var(--line);
+  padding: 18px 22px;
+  font-size: 11px;
+}
+.git-example-diff pre {
+  background: #f1f2ee;
+  padding: 12px;
+  margin-top: 12px;
+}
+.git-example-diff .diff-removed {
+  color: #9c342c;
+}
+.git-example-diff .diff-added {
+  color: #245d49;
+}
+.git-illustration figcaption {
+  border-top: 1px solid var(--line);
+  padding: 16px 22px;
+  font-size: 11px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+.git-capabilities {
+  display: grid;
+  gap: 24px;
+}
+.git-capabilities p,
+.git-entry p {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--muted);
+}
+.git-entry {
+  margin-top: 36px;
+  padding: 24px;
+  background: #eeeee8;
+  border-radius: 11px;
+}
+.git-entry .text-link {
+  display: inline-block;
+  margin-top: 16px;
+}
+.git-limits {
+  margin-top: 12px;
+}
+@media (max-width: 760px) {
+  .git-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .git-example-row {
+    grid-template-columns: 62px minmax(0, 1fr);
+  }
+  .git-example-row code:last-child {
+    display: none;
+  }
+}
 .install-section {
   background: #eeeee8;
   border-block: 1px solid var(--line);

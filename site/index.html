@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="SuperMenu 超级右键：原生 macOS Finder 扩展。复制路径、打开编辑器、新建与整理文件，支持中日韩英四种语言。"
+      content="SuperMenu 超级右键：在 Finder 中复制路径、打开编辑器、整理文件，也能打开 Git 工作台，查看改动、整理提交并学习对应命令。"
     />
     <meta name="theme-color" content="#f7f6f2" />
     <meta property="og:title" content="SuperMenu · 超级右键" />
     <meta
       property="og:description"
-      content="把常用文件操作，放回右键菜单。A little more power in every right-click."
+      content="从 Finder 文件操作到 Git 提交历史，查看改动、整理提交、理解每一步命令。"
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://openmacapp.github.io/supermenu/" />
@@ -35,6 +35,7 @@
       >
       <nav aria-label="Navigation">
         <a href="#features" data-i18n="navFeatures">功能</a>
+        <a href="#git" data-i18n="navGit">Git 工作台</a>
         <a href="#install" data-i18n="navInstall">安装</a>
         <a href="https://github.com/openmacapp/supermenu">GitHub ↗</a>
         <label class="language"
@@ -63,8 +64,8 @@
             >
           </h1>
           <p class="hero-description" data-i18n="heroDescription">
-            复制路径、打开编辑器、新建文件。让每天重复的小事，在 Finder
-            里一步完成。
+            复制路径、打开编辑器、整理文件。从 Finder 打开 Git
+            工作台，查看改动、整理提交，也看懂每一步命令。
           </p>
           <div class="actions">
             <a class="button primary" href="#install"
@@ -238,6 +239,93 @@
             </p>
           </article>
         </div>
+      </section>
+
+      <section class="git-section wrap section" id="git">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">GIT WORKSPACE</p>
+            <h2 data-i18n="gitTitle">看清改动，再整理历史。</h2>
+          </div>
+          <p data-i18n="gitIntro">
+            从目录进入提交历史，把比较、整理和冲突处理放在一个原生面板里。
+          </p>
+        </div>
+        <div class="git-layout">
+          <figure class="git-illustration">
+            <div class="git-example-header">
+              <span>sample-project</span><code>main</code>
+            </div>
+            <div class="git-example-history">
+              <div class="git-example-row">
+                <code>pick</code><span data-i18n="gitSample1">添加欢迎页面</span
+                ><code>a1b2c3d</code>
+              </div>
+              <div class="git-example-row">
+                <code>squash</code
+                ><span data-i18n="gitSample2">完善页面说明</span
+                ><code>b2c3d4e</code>
+              </div>
+              <div class="git-example-row">
+                <code>reword</code
+                ><span data-i18n="gitSample3">更新安装指引</span
+                ><code>c3d4e5f</code>
+              </div>
+            </div>
+            <div class="git-example-diff">
+              <code>Sources/Welcome.swift</code>
+              <pre><code><span class="diff-removed">− let title = "Hello"</span>
+<span class="diff-added">+ let title = "Welcome"</span></code></pre>
+            </div>
+            <figcaption data-i18n="gitIllustrationNote">
+              功能示意，使用虚构提交与代码；不是应用截图，也不会执行 Git 操作。
+            </figcaption>
+          </figure>
+          <div class="git-capabilities">
+            <article>
+              <h3 data-i18n="gitBrowseTitle">找到提交，逐文件看差异。</h3>
+              <p data-i18n="gitBrowseDescription">
+                按说明、作者或 SHA 搜索历史，定位
+                HEAD、跳转父提交。比较两条提交或分支快照，在文件树中切换高亮
+                Diff，按需读取单个文件。
+              </p>
+            </article>
+            <article>
+              <h3 data-i18n="gitEditTitle">复杂操作，先确认影响。</h3>
+              <p data-i18n="gitEditDescription">
+                拣选提交、修改说明、丢弃、squash/fixup
+                和重排。执行前核对目标与受影响范围；遇到冲突可解决后继续，或中止整个操作。Revert
+                新增撤销提交，reset 提供 soft、mixed、hard 模式。
+              </p>
+            </article>
+            <article>
+              <h3 data-i18n="gitLearnTitle">操作的同时，学会命令。</h3>
+              <p data-i18n="gitLearnDescription">
+                命令预览随选项变化，可展开 rebase 的 todo
+                与辅助文件。执行后查看结果和脱敏操作记录。复制命令前会明确提示所需的辅助文件。
+              </p>
+            </article>
+          </div>
+        </div>
+        <div class="git-entry">
+          <h3 data-i18n="gitEntryTitle">从一个目录开始。</h3>
+          <p data-i18n="gitEntryDescription">
+            在 Finder 中右键仓库文件夹或目录内空白处，选择 SuperMenu → Git
+            提交历史。也可从菜单栏打开仓库，或在应用中按 ⌘O；文件夹选择器支持
+            ⌘⇧G 输入路径。
+          </p>
+          <a class="text-link" href="#install" data-i18n="gitGetStarted"
+            >构建并启用扩展 →</a
+          >
+        </div>
+        <details class="git-limits">
+          <summary data-i18n="gitLimitsTitle">当前支持范围</summary>
+          <p data-i18n="gitLimitsDescription">
+            仅操作本地仓库，不自动推送。历史修改前需处理工作区改动；重放范围包含
+            merge 时会拒绝执行，拣选也暂不支持 merge
+            提交。支持提交／分支快照比较，与暂存区和工作目录比较尚未提供。远端提示依据本地已知引用，不代表实时远端状态。
+          </p>
+        </details>
       </section>
 
       <section class="install-section" id="install">

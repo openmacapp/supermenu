@@ -18,7 +18,7 @@ const translations = {
     heroLine1: "Your next move.",
     heroLine2: "Just a right-click.",
     heroDescription:
-      "Copy a path. Open your editor. Create a file. Keep everyday file tasks right where you work: in Finder.",
+      "Copy paths, open your editor, and organize files. Open the Git workspace from Finder to review changes, tidy commits, and understand each command.",
     getStarted: "Get started",
     viewSource: "Explore the source →",
     openSource: "Free & open source",
@@ -75,6 +75,31 @@ const translations = {
     closingDescription: "Native, open source, and getting better. Join in.",
     feedback: "Ideas & feedback ↗",
     footerNote: "Made for everyday files on macOS.",
+    navGit: "Git workspace",
+    gitTitle: "Understand changes. Shape your history.",
+    gitIntro:
+      "Open a directory to explore its history, compare snapshots, organize commits, and handle conflicts in a native panel.",
+    gitSample1: "Add welcome page",
+    gitSample2: "Refine page description",
+    gitSample3: "Update install guide",
+    gitIllustrationNote:
+      "Feature illustration with fictional commits and code. This is not an app screenshot and runs no Git operations.",
+    gitBrowseTitle: "Find a commit. Review each file.",
+    gitBrowseDescription:
+      "Search by message, author, or SHA. Locate HEAD and navigate to parent commits. Compare two commits or branch snapshots, then browse highlighted diffs in a file tree with individual files loaded on demand.",
+    gitEditTitle: "Review the impact before you act.",
+    gitEditDescription:
+      "Cherry-pick, reword, drop, squash, fixup, or reorder commits. Check the target and affected range before running. Resolve conflicts and continue, or abort the operation. Revert creates undo commits; reset offers soft, mixed, and hard modes.",
+    gitLearnTitle: "Learn the commands as you go.",
+    gitLearnDescription:
+      "Command previews follow your choices and expose rebase todo and helper files. Review results and a redacted operation log afterward. Commands that need helper files are clearly marked before you copy them.",
+    gitEntryTitle: "Start with a directory.",
+    gitEntryDescription:
+      "In Finder, right-click a repository folder or an empty area inside it, then choose SuperMenu → Git History. You can also open a repository from the menu bar or press ⌘O in the app. Use ⌘⇧G in the folder picker to enter a path.",
+    gitGetStarted: "Build and enable the extension →",
+    gitLimitsTitle: "Current scope",
+    gitLimitsDescription:
+      "Works on local repositories with no automatic push. Resolve working-tree changes before rewriting history. Replay ranges containing merges and cherry-picking merge commits are not supported. Compare commit or branch snapshots; index and working-tree comparisons are not available yet. Remote warnings use locally known refs, not live remote state.",
   },
   ja: {
     skip: "本文へ移動",
@@ -84,7 +109,7 @@ const translations = {
     heroLine1: "いつもの操作を、",
     heroLine2: "右クリックから。",
     heroDescription:
-      "パスのコピー、エディタの起動、ファイルの作成。毎日の小さな作業を、Finderの中で。",
+      "パスのコピー、エディタの起動、ファイルの整理。FinderからGitワークスペースを開き、変更の確認やコミットの整理をしながら、各コマンドも学べます。",
     getStarted: "使い始める",
     viewSource: "ソースコードを見る →",
     openSource: "無料・オープンソース",
@@ -142,6 +167,31 @@ const translations = {
       "ネイティブでオープンソース。一緒に改善していきましょう。",
     feedback: "ご意見・不具合報告 ↗",
     footerNote: "macOSの毎日のファイル操作に。",
+    navGit: "Gitワークスペース",
+    gitTitle: "変更を確認して、履歴を整理。",
+    gitIntro:
+      "フォルダから履歴を開き、比較、コミットの整理、競合への対応をネイティブのパネルで行えます。",
+    gitSample1: "ようこそページを追加",
+    gitSample2: "ページの説明を改善",
+    gitSample3: "インストール手順を更新",
+    gitIllustrationNote:
+      "架空のコミットとコードによる機能のイメージです。アプリのスクリーンショットではなく、Git操作も実行しません。",
+    gitBrowseTitle: "コミットを探し、ファイルごとに確認。",
+    gitBrowseDescription:
+      "メッセージ、作者、SHAで履歴を検索し、HEADや親コミットへ移動できます。2つのコミットやブランチのスナップショットを比較し、ファイルツリーから必要なファイルだけを読み込んで、色分けされた差分を確認できます。",
+    gitEditTitle: "影響を確かめてから実行。",
+    gitEditDescription:
+      "Cherry-pick、メッセージの変更、削除、squash、fixup、並べ替えに対応。実行前に対象と影響範囲を確認できます。競合を解消して続行するか、操作を中止できます。Revertは取り消し用のコミットを作成し、resetはsoft・mixed・hardに対応します。",
+    gitLearnTitle: "操作しながら、コマンドも学ぶ。",
+    gitLearnDescription:
+      "選択に応じてコマンドのプレビューが変わり、rebaseのtodoや補助ファイルも確認できます。実行後は結果と機密情報を除いた操作ログを確認できます。補助ファイルが必要なコマンドは、コピー前にその旨を表示します。",
+    gitEntryTitle: "フォルダから始めましょう。",
+    gitEntryDescription:
+      "Finderでリポジトリのフォルダ、またはその中の空白部分を右クリックし、SuperMenu → Git の履歴を選択します。メニューバーやアプリ内の⌘Oからも開けます。フォルダ選択画面では⌘⇧Gでパスを入力できます。",
+    gitGetStarted: "ビルドして機能拡張を有効にする →",
+    gitLimitsTitle: "現在の対応範囲",
+    gitLimitsDescription:
+      "ローカルリポジトリを操作し、自動pushは行いません。履歴の変更前に作業ツリーの変更を処理してください。mergeを含む範囲の再適用と、mergeコミットのcherry-pickには未対応です。コミットやブランチのスナップショットを比較できますが、インデックスや作業ツリーとの比較は未対応です。リモートに関する警告はローカルの参照に基づき、リアルタイムの状態ではありません。",
   },
   ko: {
     skip: "본문으로 이동",
@@ -151,7 +201,7 @@ const translations = {
     heroLine1: "익숙한 작업을,",
     heroLine2: "오른쪽 클릭으로.",
     heroDescription:
-      "경로 복사, 편집기 열기, 파일 만들기. 매일 반복하는 작은 작업을 Finder 안에서 끝내세요.",
+      "경로 복사, 편집기 열기, 파일 정리까지. Finder에서 Git 작업 공간을 열어 변경 사항을 확인하고 커밋을 정리하며 각 명령도 배울 수 있습니다.",
     getStarted: "시작하기",
     viewSource: "소스 코드 보기 →",
     openSource: "무료 오픈 소스",
@@ -208,6 +258,31 @@ const translations = {
     closingDescription: "네이티브 오픈 소스 앱입니다. 함께 개선해 나가요.",
     feedback: "의견 및 문제 신고 ↗",
     footerNote: "macOS의 일상적인 파일 작업을 위해.",
+    navGit: "Git 작업 공간",
+    gitTitle: "변경을 확인하고, 이력을 정리하세요.",
+    gitIntro:
+      "폴더에서 이력을 열어 비교, 커밋 정리, 충돌 처리를 네이티브 패널에서 진행하세요.",
+    gitSample1: "환영 페이지 추가",
+    gitSample2: "페이지 설명 개선",
+    gitSample3: "설치 안내 업데이트",
+    gitIllustrationNote:
+      "가상의 커밋과 코드로 만든 기능 예시입니다. 앱 스크린샷이 아니며 Git 작업을 실행하지 않습니다.",
+    gitBrowseTitle: "커밋을 찾고, 파일별로 확인하세요.",
+    gitBrowseDescription:
+      "메시지, 작성자, SHA로 이력을 검색하고 HEAD와 부모 커밋으로 이동하세요. 두 커밋 또는 브랜치 스냅샷을 비교하고, 파일 트리에서 필요한 파일만 불러와 색상으로 구분된 차이를 확인할 수 있습니다.",
+    gitEditTitle: "영향을 확인한 뒤 실행하세요.",
+    gitEditDescription:
+      "Cherry-pick, 메시지 수정, 삭제, squash, fixup, 순서 변경을 지원합니다. 실행 전에 대상과 영향 범위를 확인하세요. 충돌을 해결한 뒤 계속하거나 작업을 중단할 수 있습니다. Revert는 취소용 커밋을 만들며 reset은 soft, mixed, hard 모드를 제공합니다.",
+    gitLearnTitle: "작업하면서 명령도 배우세요.",
+    gitLearnDescription:
+      "선택에 따라 명령 미리보기가 바뀌며 rebase todo와 보조 파일도 확인할 수 있습니다. 실행 후 결과와 민감 정보를 가린 작업 기록을 볼 수 있습니다. 보조 파일이 필요한 명령은 복사 전에 안내합니다.",
+    gitEntryTitle: "폴더에서 시작하세요.",
+    gitEntryDescription:
+      "Finder에서 저장소 폴더나 폴더 안의 빈 공간을 오른쪽 클릭하고 SuperMenu → Git 커밋 기록을 선택하세요. 메뉴 막대 또는 앱의 ⌘O로도 저장소를 열 수 있습니다. 폴더 선택 창에서는 ⌘⇧G로 경로를 입력할 수 있습니다.",
+    gitGetStarted: "빌드하고 확장 활성화하기 →",
+    gitLimitsTitle: "현재 지원 범위",
+    gitLimitsDescription:
+      "로컬 저장소를 다루며 자동으로 push하지 않습니다. 이력을 변경하기 전에 작업 트리의 변경 사항을 처리해야 합니다. merge가 포함된 범위의 재적용과 merge 커밋의 cherry-pick은 지원하지 않습니다. 커밋과 브랜치 스냅샷을 비교할 수 있지만 인덱스와 작업 트리 비교는 아직 지원하지 않습니다. 원격 경고는 로컬에 알려진 참조를 사용하며 실시간 원격 상태를 나타내지 않습니다.",
   },
 };
 
@@ -356,8 +431,11 @@ function setLanguage(language) {
       text[element.dataset.i18n] ?? chinese[element.dataset.i18n];
   }
   document.title = `SuperMenu — ${text.heroLine1} ${text.heroLine2}`;
-  document.querySelector('meta[name="description"]').content =
-    text.heroDescription;
+  for (const meta of document.querySelectorAll(
+    'meta[name="description"], meta[property="og:description"]',
+  )) {
+    meta.content = text.heroDescription;
+  }
   document.querySelector('[data-i18n="fullGuide"]').href =
     `https://github.com/openmacapp/supermenu/blob/master/${readmeFiles[currentLanguage]}#installation`;
   renderDemo();
