@@ -2,6 +2,33 @@ import XCTest
 @testable import SuperMenuGit
 
 final class GitDiffTests: XCTestCase {
+    func testDivergentEndpointDirectionAndEachMergeParent() async throws {
+        let repo = try Fixture()
+        defer { repo.remove() }
+        _ = try repo.commit("base", content: "base\n")
+        try repo.git(["checkout", "-b", "topic"])
+        let topic = try repo.commit("topic", content: "topic\n", file: "[topic]\t日本語.txt")
+        try repo.git(["checkout", "main"])
+        let main = try repo.commit("main", content: "main\n", file: "main.txt")
+        let workspace = try await GitWorkspace.open(at: repo.url)
+        let comparison = try await workspace.comparison(fromReference: "refs/heads/main", toReference: "refs/heads/topic")
+        let forward = try await workspace.changedFiles(in: comparison)
+        XCTAssertEqual(forward.first { $0.path == "main.txt" }?.status, "D")
+        XCTAssertEqual(forward.first { $0.path == "[topic]\t日本語.txt" }?.status, "A")
+        let backward = try await workspace.changedFiles(in: comparison.swapped())
+        XCTAssertEqual(backward.first { $0.path == "main.txt" }?.status, "A")
+        XCTAssertEqual(backward.first { $0.path == "[topic]\t日本語.txt" }?.status, "D")
+        let file = try XCTUnwrap(forward.first { $0.status == "A" })
+        let patch = try await workspace.fileDiff(in: comparison, file: file)
+        XCTAssertTrue(patch.text.contains("+topic"))
+        try repo.git(["merge", "--no-ff", "topic", "-m", "Merge"])
+        let merge = try repo.git(["rev-parse", "HEAD"])
+        let firstParent = try await workspace.changedFiles(in: GitComparison(from: main, to: merge))
+        let secondParent = try await workspace.changedFiles(in: GitComparison(from: topic, to: merge))
+        XCTAssertEqual(firstParent.map(\.path), ["[topic]\t日本語.txt"])
+        XCTAssertEqual(secondParent.map(\.path), ["main.txt"])
+    }
+
     func testLiteralPathsAndLargePatchAreBounded() async throws {
         let repo = try Fixture()
         defer { repo.remove() }

@@ -1,13 +1,14 @@
 import Foundation
 import GitKit
 
-/// GitKit owns process execution, parsing and graph layout. This actor owns the
+/// GitKit supplies repository discovery, parsing and graph layout. This actor owns the
 /// narrower SuperMenu history workflow and prevents overlapping mutations.
 public actor GitWorkspace {
     public nonisolated let root: URL
     let service: CLIGitService
     let runner: GitRunner
     private var mutating = false
+    var operationStore = GitOperationStore()
 
     private init(service: CLIGitService) {
         self.service = service
@@ -60,9 +61,12 @@ public actor GitWorkspace {
                 return operation
             }
         }
-        // A revert sequence may pause between commits without REVERT_HEAD.
+        // A sequence may pause between commits without its per-commit HEAD marker.
         let todo = try await gitPath("sequencer/todo")
-        if let text = try? String(contentsOf: todo), text.hasPrefix("revert ") { return .revert }
+        if let text = try? String(contentsOf: todo) {
+            if text.hasPrefix("revert ") { return .revert }
+            if text.hasPrefix("pick ") { return .cherryPick }
+        }
         return nil
     }
 
@@ -77,6 +81,7 @@ public actor GitWorkspace {
         guard !before.head.isEmpty, !ids.isEmpty else { throw WorkspaceFailure("git.error.selection") }
         guard before.status.isEmpty else { throw WorkspaceFailure("git.error.dirty") }
         guard !before.branch.isEmpty else { throw WorkspaceFailure("git.error.detached") }
+        if action == .cherryPick, ids.count > 200 { throw WorkspaceFailure("git.error.rangeTooLarge") }
 
         // Obtain actual commit objects, never interpolate user-supplied revision syntax.
         guard ids.allSatisfy({ $0.count == 40 || $0.count == 64 }) else { throw WorkspaceFailure("git.error.selection") }
@@ -90,8 +95,15 @@ public actor GitWorkspace {
         var comparisons: [GitComparison] = []
 
         switch action {
-        case .squash, .rebase:
+        case .cherryPick:
+            affected = try await orderedCherryPicks(selected)
+            entries = affected.map(ReplayEntry.init)
+            comparisons = affected.map {
+                GitComparison(from: $0.parents.first, to: $0.id, title: $0.shortID + "  " + $0.summary)
+            }
+        case .squash, .rebase, .reword, .drop:
             if action == .squash && ids.count < 2 { throw WorkspaceFailure("git.error.squashSelection") }
+            if action == .reword && ids.count != 1 { throw WorkspaceFailure("git.error.selectOne") }
             let chain = try await service.log(skip: 0, limit: 10_000, revisions: ["--first-parent", "HEAD"])
             let indices = chain.commits.indices.filter { ids.contains(chain.commits[$0].id) }
             guard indices.count == ids.count, let oldest = indices.max() else { throw WorkspaceFailure("git.error.ancestry") }
@@ -102,6 +114,14 @@ public actor GitWorkspace {
             guard affected.allSatisfy({ !$0.isMerge }) else { throw WorkspaceFailure("git.error.merge") }
             base = affected.first?.parents.first
             entries = affected.map(ReplayEntry.init)
+            if action == .reword || action == .drop {
+                for index in entries.indices where ids.contains(entries[index].id) {
+                    entries[index].action = action == .reword ? .reword : .drop
+                }
+                if action == .drop, base == nil, entries.allSatisfy({ $0.action == .drop }) {
+                    throw WorkspaceFailure("git.error.dropAllHistory")
+                }
+            }
             comparisons = [GitComparison(from: base, to: before.head)]
         case .revert:
             guard selected.allSatisfy({ !$0.isMerge }) else { throw WorkspaceFailure("git.error.merge") }
@@ -133,48 +153,61 @@ public actor GitWorkspace {
     }
 
     public func execute(_ plan: HistoryPlan) async throws {
-        guard !mutating else { throw WorkspaceFailure("git.error.inProgress") }
-        mutating = true
-        defer { mutating = false }
-        guard try await operation() == nil else { throw WorkspaceFailure("git.error.inProgress") }
-        guard try await snapshot() == plan.snapshot else { throw WorkspaceFailure("git.error.stale") }
-        switch plan.action {
-        case .squash, .rebase:
-            try await replay(plan)
-        case .revert:
-            try await runner.run(["revert", "--no-edit"] + plan.affected.map(\.id))
-        case .reset:
-            guard let target = plan.selected.first else { throw WorkspaceFailure("git.error.selection") }
-            try await runner.run(["reset", "--\(plan.resetMode.rawValue)", target.id])
+        try await recordOperation(action: plan.action.rawValue) { record in
+            guard !mutating else { throw WorkspaceFailure("git.error.inProgress") }
+            mutating = true
+            defer { mutating = false }
+            guard try await operation() == nil else { throw WorkspaceFailure("git.error.inProgress") }
+            guard try await snapshot() == plan.snapshot else { throw WorkspaceFailure("git.error.stale") }
+            switch plan.action {
+            case .squash, .rebase, .reword, .drop:
+                try await replay(plan, record: &record)
+            case .revert, .reset, .cherryPick:
+                try await runMutation(GitPlanCommands.directArguments(for: plan), record: &record)
+            }
         }
     }
 
     /// Resolutions are edited in the user's editor. This explicitly stages only
     /// the chosen conflicted path; it never stages unrelated working-tree files.
     public func markResolved(path: String) async throws {
-        guard !mutating else { throw WorkspaceFailure("git.error.inProgress") }
-        mutating = true
-        defer { mutating = false }
-        guard try await operation() != nil else { throw WorkspaceFailure("git.error.inProgress") }
-        guard try await conflicts().contains(path) else { throw WorkspaceFailure("git.error.selection") }
-        try await runner.run(["add", "--", path])
+        try await recordOperation(action: "resolved") { record in
+            guard !mutating else { throw WorkspaceFailure("git.error.inProgress") }
+            mutating = true
+            defer { mutating = false }
+            guard try await operation() != nil else { throw WorkspaceFailure("git.error.inProgress") }
+            guard try await conflicts().contains(path) else { throw WorkspaceFailure("git.error.selection") }
+            try await runMutation(["add", "--", path], record: &record)
+        }
     }
 
     public func finishOperation(abort: Bool) async throws {
-        guard !mutating else { throw WorkspaceFailure("git.error.inProgress") }
-        mutating = true
-        defer { mutating = false }
-        guard let operation = try await operation() else { throw WorkspaceFailure("git.error.inProgress") }
-        let command: String
-        switch operation {
-        case .rebase: command = "rebase"
-        case .revert: command = "revert"
-        case .cherryPick: command = "cherry-pick"
-        case .merge: command = "merge"
+        try await recordOperation(action: abort ? "abort" : "continue") { record in
+            guard !mutating else { throw WorkspaceFailure("git.error.inProgress") }
+            mutating = true
+            defer { mutating = false }
+            guard let operation = try await operation() else { throw WorkspaceFailure("git.error.inProgress") }
+            let command: String
+            switch operation {
+            case .rebase: command = "rebase"
+            case .revert: command = "revert"
+            case .cherryPick: command = "cherry-pick"
+            case .merge: command = "merge"
+            }
+            if !abort, !(try await conflicts()).isEmpty { throw WorkspaceFailure("git.error.conflicts") }
+            try await runMutation([command, abort ? "--abort" : "--continue"], record: &record)
+            if try await self.operation() == nil { try await removeReplayFiles() }
         }
-        if !abort, !(try await conflicts()).isEmpty { throw WorkspaceFailure("git.error.conflicts") }
-        try await runner.run([command, abort ? "--abort" : "--continue"])
-        if try await self.operation() == nil { try await removeReplayFiles() }
+    }
+
+    public func skipEmptyCherryPick() async throws {
+        try await recordOperation(action: "skipCherryPick") { record in
+            guard !mutating else { throw WorkspaceFailure("git.error.inProgress") }
+            mutating = true
+            defer { mutating = false }
+            guard try await canSkipEmptyCherryPick() else { throw WorkspaceFailure("git.error.skipCherryPick") }
+            try await runMutation(["cherry-pick", "--skip"], record: &record)
+        }
     }
 
     func gitPath(_ path: String) async throws -> URL {

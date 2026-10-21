@@ -58,6 +58,119 @@ final class GitBrowsingTests: XCTestCase {
         XCTAssertEqual(history.commits.map(\.id), [commit])
     }
 
+    func testComparisonPinsReferencesAndRejectsRevisionExpressions() async throws {
+        let repo = try Fixture()
+        defer { repo.remove() }
+        let base = try repo.commit("base", content: "base")
+        try repo.git(["checkout", "-b", "topic"])
+        let topic = try repo.commit("topic", content: "topic", file: "topic.txt")
+        try repo.git(["tag", "-a", "v1", "-m", "version"])
+        try repo.git(["checkout", "main"])
+        let main = try repo.commit("main", content: "main", file: "main.txt")
+        let workspace = try await GitWorkspace.open(at: repo.url)
+        let before = try await workspace.snapshot()
+        let comparison = try await workspace.comparison(fromReference: "refs/heads/main", toReference: "refs/tags/v1")
+        XCTAssertEqual(comparison.from, main)
+        XCTAssertEqual(comparison.to, topic)
+        let files = try await workspace.changedFiles(in: comparison)
+        XCTAssertEqual(Set(files.map(\.path)), ["main.txt", "topic.txt"])
+        let after = try await workspace.snapshot()
+        XCTAssertEqual(after, before)
+        try repo.git(["update-ref", "refs/heads/main", base])
+        try repo.git(["tag", "-d", "v1"])
+        let retained = try await workspace.changedFiles(in: comparison)
+        XCTAssertEqual(retained, files, "A captured comparison must not follow refs that moved or disappeared")
+        for reference in ["refs/tags/v1", "--all", "main", "refs/heads/topic~1"] {
+            do {
+                _ = try await workspace.commitID(forReference: reference)
+                XCTFail("Only exact existing references are accepted")
+            } catch let error as WorkspaceFailure { XCTAssertEqual(error.key, "git.error.referenceMissing") }
+        }
+    }
+
+    func testSelectionAnalysisUsesActualParentsNotFilteredRowAdjacency() async throws {
+        let repo = try Fixture()
+        defer { repo.remove() }
+        let root = try repo.commit("visible root", content: "one")
+        let middle = try repo.commit("hidden middle", content: "two")
+        let head = try repo.commit("visible head", content: "three")
+        let workspace = try await GitWorkspace.open(at: repo.url)
+        let before = try await workspace.snapshot()
+        let filtered = try await workspace.searchHistory(.init(text: "visible", field: .message))
+        let gap = try await workspace.selectionSummary(for: filtered.commits)
+        XCTAssertFalse(gap.isContiguous)
+        XCTAssertEqual(gap.mainline, .all)
+        XCTAssertEqual(gap.squashBlockedReason, "git.error.contiguous")
+        XCTAssertNil(gap.rebaseBlockedReason)
+        let all = try await workspace.history()
+        let pair = try await workspace.selectionSummary(for: all.commits.filter { $0.id == head || $0.id == middle })
+        XCTAssertTrue(pair.isContiguous)
+        XCTAssertNil(pair.squashBlockedReason)
+        let rootSelection = try await workspace.selectionSummary(for: all.commits)
+        XCTAssertTrue(rootSelection.isContiguous)
+        XCTAssertNil(rootSelection.rebaseBlockedReason)
+        let after = try await workspace.snapshot()
+        XCTAssertEqual(before, after)
+        XCTAssertEqual(all.commits.last?.id, root)
+    }
+
+    func testSelectionAnalysisReportsSideBranchAndMergeInAffectedRange() async throws {
+        let repo = try Fixture()
+        defer { repo.remove() }
+        let base = try repo.commit("base", content: "base")
+        try repo.git(["checkout", "-b", "topic"])
+        let topic = try repo.commit("topic", content: "topic", file: "topic.txt")
+        try repo.git(["checkout", "main"])
+        _ = try repo.commit("main", content: "main", file: "main.txt")
+        let workspace = try await GitWorkspace.open(at: repo.url)
+        var page = try await workspace.history()
+        let side = try await workspace.selectionSummary(for: page.commits.filter { $0.id == topic })
+        XCTAssertEqual(side.mainline, .notAll)
+        XCTAssertEqual(side.rebaseBlockedReason, "git.error.ancestry")
+        try repo.git(["merge", "--no-ff", "topic", "-m", "Merge"])
+        page = try await workspace.history()
+        let selection = try await workspace.selectionSummary(for: page.commits.filter { $0.id == base })
+        XCTAssertEqual(selection.mergeCount, 0)
+        XCTAssertEqual(selection.rebaseBlockedReason, "git.error.merge", "A newer merge also prevents linear replay")
+        let merge = try await workspace.selectionSummary(for: Array(page.commits.prefix(1)))
+        XCTAssertEqual(merge.mergeCount, 1)
+        XCTAssertFalse(merge.isContiguous)
+    }
+
+    func testSelectionBeyondMainlineBudgetIsUnknownRatherThanOutsideBranch() async throws {
+        let repo = try Fixture()
+        defer { repo.remove() }
+        var stream = ""
+        for index in 0..<10_002 {
+            let message = "Commit \(index)"
+            stream += "commit refs/heads/main\ncommitter Example <example@example.invalid> 1700000000 +0000\ndata \(message.utf8.count)\n\(message)\n\n"
+        }
+        let input = repo.url.appendingPathComponent("import.txt")
+        try stream.write(to: input, atomically: true, encoding: .utf8)
+        let handle = try FileHandle(forReadingFrom: input)
+        defer { try? handle.close() }
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
+        process.currentDirectoryURL = repo.url
+        process.arguments = ["fast-import", "--quiet"]
+        process.standardInput = handle
+        process.standardOutput = FileHandle.nullDevice
+        process.standardError = FileHandle.nullDevice
+        try process.run()
+        process.waitUntilExit()
+        XCTAssertEqual(process.terminationStatus, 0)
+        let workspace = try await GitWorkspace.open(at: repo.url)
+        let history = try await workspace.history(limit: 10_002)
+        let oldest = try XCTUnwrap(history.commits.last)
+        let outsideBudget = try await workspace.selectionSummary(for: [oldest])
+        XCTAssertEqual(outsideBudget.mainline, .unknown)
+        XCTAssertEqual(outsideBudget.rebaseBlockedReason, "git.selectionAnalysisLimited")
+        let latest = try await workspace.selectionSummary(for: Array(history.commits.prefix(2)))
+        XCTAssertEqual(latest.mainline, .all)
+        XCTAssertTrue(latest.isContiguous)
+        XCTAssertNil(latest.squashBlockedReason)
+    }
+
     func testDirectoryCollapseAndRenameSearchPreserveLiteralPaths() {
         let files = [
             GitChangedFile(path: "src/deep/新\t文件.swift", oldPath: "old/renamed.swift", status: "R"),

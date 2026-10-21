@@ -47,6 +47,12 @@ struct GitReferencesSidebar: View {
                             .accessibilityLabel(model.text("git.checkedOutBranch"))
                     }
                 }.tag(reference.id)
+                    .contextMenu {
+                        Button(model.text("git.setComparisonBase")) { Task { await model.setComparisonBase(reference: reference) } }
+                            .disabled(model.searching)
+                        Button(model.text("git.compareWithBase")) { Task { await model.compare(toReference: reference) } }
+                            .disabled(model.searching || model.comparisonBase == nil)
+                    }
                     .help(reference.name + (reference.isHead ? " — " + model.text("git.checkedOutBranch") : ""))
             }
         }

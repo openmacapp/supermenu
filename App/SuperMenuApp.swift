@@ -14,6 +14,7 @@ struct SuperMenuApp: App {
         .commands {
             CommandMenu("Git") {
                 Button(model.l10n.text("git.openRepository")) { GitWindows.shared.chooseRepository() }
+                    .keyboardShortcut("o", modifiers: .command)
             }
             CommandGroup(replacing: .newItem) {}
             CommandGroup(replacing: .appInfo) {

@@ -17,6 +17,10 @@ public struct GitComparison: Identifiable, Hashable, Sendable {
         self.title = title
     }
 
+    public func swapped() -> GitComparison {
+        GitComparison(from: from, to: to, reversed: !reversed, title: title)
+    }
+
     func arguments(options: [String]) -> [String] {
         let common = ["--no-ext-diff", "--no-textconv", "--no-color", "--find-renames",
                       "--submodule=short", "--ignore-submodules=none"]
@@ -55,6 +59,31 @@ public struct GitDiffPreview: Sendable {
 }
 
 extension GitWorkspace {
+    /// Resolves both endpoints now. Later ref movement cannot change this diff.
+    public func comparison(fromReference: String, toReference: String) async throws -> GitComparison {
+        let from = try await commitID(forReference: fromReference)
+        let to = try await commitID(forReference: toReference)
+        return GitComparison(from: from, to: to)
+    }
+
+    public func commitID(forReference reference: String) async throws -> String {
+        guard try await references().contains(where: { $0.id == reference }) else {
+            throw WorkspaceFailure("git.error.referenceMissing")
+        }
+        do {
+            let result = try await BoundedGitRead.read(root: root,
+                arguments: ["rev-parse", "--verify", "--end-of-options", reference + "^{commit}"], byteLimit: 1024)
+            let id = String(decoding: result.data, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !result.truncated, (id.count == 40 || id.count == 64), id.allSatisfy(\.isHexDigit) else {
+                throw WorkspaceFailure("git.error.referenceMissing")
+            }
+            return id
+        } catch let failure as WorkspaceFailure where failure.key == "git.error.diff" {
+            // The reference may disappear between enumeration and resolution.
+            throw WorkspaceFailure("git.error.referenceMissing")
+        }
+    }
+
     public func changedFiles(in comparison: GitComparison) async throws -> [GitChangedFile] {
         try Task.checkCancellation()
         let result = try await BoundedGitRead.read(root: root,

@@ -67,7 +67,8 @@ final class GitSafetyTests: XCTestCase {
         var plan = try await workspace.preview(.rebase, selected: [first])
         plan.entries.swapAt(0, 1)
         plan.entries[0].message = "Renamed"
-        plan.entries[2].combineWithPrevious = true
+        plan.entries[0].action = .reword
+        plan.entries[2].action = .squash
         try await workspace.execute(plan)
         XCTAssertEqual(try repo.git(["rev-parse", "HEAD^{tree}"]), tree)
         XCTAssertEqual(try repo.git(["log", "--format=%s", "--reverse"]), "Renamed\none")
@@ -84,6 +85,7 @@ final class GitSafetyTests: XCTestCase {
         var plan = try await workspace.preview(.rebase, selected: [first])
         plan.entries.swapAt(0, 1)
         plan.entries[0].message = "Reordered"
+        plan.entries[0].action = .reword
         do { try await workspace.execute(plan); XCTFail("Expected conflict") } catch {}
         let reopened = try await GitWorkspace.open(at: repo.url)
         let operation = try await reopened.operation()

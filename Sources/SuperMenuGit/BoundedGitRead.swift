@@ -8,7 +8,7 @@ struct GitReadResult: Sendable {
 }
 
 /// Inspection reads need cancellation, deadlines and output bounds that the
-/// buffered GitKit runner does not expose. Mutation commands still use GitKit.
+/// buffered GitKit runner does not expose. Writes use BoundedGitMutation instead.
 final class BoundedGitRead: @unchecked Sendable {
     private let lock = NSLock()
     private let process = Process()
